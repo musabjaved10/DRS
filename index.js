@@ -8,6 +8,7 @@ const methodOverride = require('method-override')
 const flash = require('connect-flash')
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
+const passport = require('passport')
 
 
 app.engine("ejs", ejsMate);
@@ -39,23 +40,24 @@ app.use((req, res, next) => {
     // };
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
-    res.locals.currentUser = req.user;
+
     next();
 });
+// //Configure passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 //importing routes
 
-app.get('/',(req,res)=>{
-
-    res.send('Root')
+app.get('/', (req, res) => {
+    res.locals.currentUser = req.user;
+    res.render("index")
 })
 
 const userRoutes = require('./routes/user')
-app.use("/",userRoutes)
+app.use("/", userRoutes)
 
 
-
-
-app.listen(PORT,()=>{
+app.listen(PORT, () => {
     console.log(`Server is up on port ${PORT}`)
 })

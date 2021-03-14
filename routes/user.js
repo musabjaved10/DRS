@@ -4,11 +4,19 @@ const {validationResult} = require("express-validator");
 const auth = require('../validation/authValidation')
 const bcrypt = require('bcrypt')
 const db = require('../model/dbConnection')
+const passport = require('../model/strategies')
 
 
 router.get("/login", (req, res) => {
     res.render("authentication/login")
 })
+router.post("/login", passport.authenticate("local", {
+        successRedirect: '/',
+        failureRedirect:'/login',
+        successFlash: true,
+        failureFlash: true})
+
+);
 
 router.get("/register", (req, res) => {
     res.render("authentication/signup")
