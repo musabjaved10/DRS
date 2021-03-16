@@ -5,7 +5,7 @@ const auth = require('../validation/authValidation')
 const bcrypt = require('bcrypt')
 const db = require('../model/dbConnection')
 const passport = require('../model/strategies')
-const {checkLoggedIn, checkLoggedOut} = require('../middleware')
+const {checkLoggedIn, checkLoggedOut, isVerified} = require('../middleware')
 
 
 router.get("/login", (req, res) => {
@@ -64,9 +64,9 @@ router.post("/register", auth.validateRegister, async (req, res) => {
 router.get("/forgot", (req, res) => {
     res.render("authentication/forgotpass")
 })
-router.get("/changepassword",(req,res)=>{
-
-    res.render("authentication/changepass",{})
+router.get("/changepassword",checkLoggedIn,(req,res)=>{
+    res.locals.currentUser = req.user
+    res.render("authentication/changepass",)
 })
 
 let createNewUser = (data) => {

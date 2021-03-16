@@ -39,13 +39,15 @@
                         <div class="col-lg-6">
                             <div class="p-5">
                                 <div class="text-center">
-                                    <%if(currentUserVerified){%>
+                                    <%if(currentUser.isVerified === 0){%>
                                         <h1 class="h4 text-gray-900 mb-2">Just one more step!</h1>
                                         <p class="mb-4">Change your password to proceed</p>
-                                    <%}%>
+                                    <%} else{%>
 
-                                    <h1 class="h4 text-gray-900 mb-2">Just one more step!</h1>
-                                    <p class="mb-4">Change your password to proceed</p>
+                                    <h1 class="h4 text-gray-900 mb-2">Change password</h1>
+                                    <p class="mb-4">Enter the credentials to proceed</p>
+
+                                    <%}%>
                                 </div>
                                 <form class="user">
                                     <div class="form-group">

@@ -11,3 +11,10 @@ module.exports.checkLoggedOut = (req, res, next) => {
     }
     next();
 };
+
+module.exports.isVerified = (req,res,next)=>{
+    if(req.user.isVerified === 0){
+        return res.redirect("/changepassword")
+    }
+    next()
+}

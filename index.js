@@ -40,6 +40,7 @@ app.use((req, res, next) => {
     // };
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
+    res.locals.currentUser = req.user
 
     next();
 });
@@ -47,17 +48,69 @@ app.use((req, res, next) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
-const {checkLoggedIn} = require('./middleware')
+const {checkLoggedIn, isVerified} = require('./middleware')
 
 //importing routes
 
-app.get('/',checkLoggedIn, (req, res) => {
-    res.locals.currentUser = req.user;
-    res.render("index")
-})
 
 const userRoutes = require('./routes/user')
 app.use("/", userRoutes)
+
+app.get('/',checkLoggedIn,isVerified, (req, res) => {
+    res.locals.currentUser = req.user;
+    res.render("index")
+})
+app.get('/newBooking',checkLoggedIn, isVerified, async (req, res) => {
+    res.locals.currentUser = req.user;
+    const sql = "SELECT * FROM floor"
+    try{
+        await db.query(sql,(err,floors)=>{
+            return res.render('newBooking',{floors})
+        })
+
+    }catch (e) {
+        if (e.errno === 19) {
+            res.status(400).json('Duplication error from database');
+        } else {
+            res.status(400).json('Something broke! ' + e);
+        }
+    }
+
+})
+app.get('/floor:',checkLoggedIn, isVerified, async (req, res) => {
+    res.locals.currentUser = req.user;
+    const sql = `SELECT floor.*, room.* FROM room, floor WHERE floor_id = ${req.params.id}  room.floor_id = floor.floor_id`
+    try{
+        await db.query(sql,req.params.id,(err,rooms)=>{
+            return res.render('floors',{rooms,floor})
+        })
+
+    }catch (e) {
+        if (e.errno === 19) {
+            res.status(400).json('Duplication error from database');
+        } else {
+            res.status(400).json('Something broke! ' + e);
+        }
+    }
+
+})
+app.get('/check/:id', async (req, res) => {
+    res.locals.currentUser = req.user;
+    const sql = `SELECT floor.*, room.* FROM room, floor WHERE room.floor_id = floor.floor_id`
+    try{
+        await db.query(sql,(err,rooms)=>{
+            console.log(rooms)
+        })
+
+    }catch (e) {
+        if (e.errno === 19) {
+            res.status(400).json('Duplication error from database');
+        } else {
+            res.status(400).json('Something broke! ' + e);
+        }
+    }
+
+})
 
 
 app.listen(PORT, () => {
