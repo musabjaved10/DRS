@@ -13,7 +13,7 @@ passport.use(new LocalStrategy({
         passReqToCallback: true
     },
     async (req, email, password, done) => {
-        console.log(email, password)
+        // console.log(email, password)
         try {
             await findUserByEmail(email).then(async (user) => {
 
@@ -21,10 +21,10 @@ passport.use(new LocalStrategy({
                     return done(null, false, req.flash("error", `This user email "${email}" doesn't exist`));
                 }
                 if (user) {
-                    console.log('heyyy its a user', user)
+                    // console.log('heyyy its a user', user)
                     let match = await comparePassword(password, user);
                     if (match === true) {
-                        console.log('matching done here is the user >', user)
+                        // console.log('matching done here is the user >', user)
                         return done(null, user, null)
                     } else {
                         return done(null, false, req.flash("error", match))
@@ -44,14 +44,14 @@ passport.use(new LocalStrategy({
 
 
 let findUserByEmail = (email) => {
-    console.log('printing email from userbyEMAIL func ' + email)
+    // console.log('printing email from userbyEMAIL func ' + email)
 
     return new Promise((resolve, reject) => {
         try {
             const sql = ' SELECT * FROM users WHERE email = ?  '
             db.query(sql, email, function (err, rows) {
                     if (err) {
-                        console.log('erorrrr')
+                        // console.log('erorrrr')
                         reject(err)
                     }
                     // console.log(rows )
@@ -61,7 +61,7 @@ let findUserByEmail = (email) => {
                 }
             );
         } catch (err) {
-            console.log('error from findUserByEmail catch')
+            // console.log('error from findUserByEmail catch')
             reject(err);
         }
     });
@@ -76,8 +76,8 @@ let findUserById = (id) => {
                         reject(err)
                     }
                     let user = rows[0];
-                console.log('printing user from FINDUSERBYID')
-                console.log(user)
+                // console.log('printing user from FINDUSERBYID')
+                // console.log(user)
                     resolve(user);
                 }
             );
@@ -88,8 +88,8 @@ let findUserById = (id) => {
 };
 
 let comparePassword = (password, userObject) => {
-    console.log(`reached in compare password and the password is ${password}`)
-    console.log(password, userObject)
+    // console.log(`reached in compare password and the password is ${password}`)
+    // console.log(password, userObject)
     return new Promise(async (resolve, reject) => {
         try {
             await bcrypt.compare(password, userObject.password).then((isMatch) => {
@@ -106,16 +106,16 @@ let comparePassword = (password, userObject) => {
 };
 
 passport.serializeUser((user, done) => {
-    console.log(`Inside Serializing user:>`)
-    console.log(user)
+    // console.log(`Inside Serializing user:>`)
+    // console.log(user)
     done(null, user.user_id);
 });
 
 passport.deserializeUser((id, done) => {
-    console.log(`Inside DESerializing user:>`)
+    // console.log(`Inside DESerializing user:>`)
     findUserById(id).then((user) => {
-        console.log('printing userr****************')
-        console.log(user)
+        // console.log('printing userr****************')
+        // console.log(user)
         return done(null, user);
     }).catch(error => {
         return done(error, null)

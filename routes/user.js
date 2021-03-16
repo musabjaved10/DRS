@@ -5,18 +5,24 @@ const auth = require('../validation/authValidation')
 const bcrypt = require('bcrypt')
 const db = require('../model/dbConnection')
 const passport = require('../model/strategies')
+const {checkLoggedIn, checkLoggedOut} = require('../middleware')
 
 
 router.get("/login", (req, res) => {
     res.render("authentication/login")
 })
-router.post("/login", passport.authenticate("local", {
+router.post("/login",checkLoggedOut, passport.authenticate("local", {
         successRedirect: '/',
-        failureRedirect:'/login',
+        failureRedirect: '/login',
         successFlash: true,
-        failureFlash: true})
-
+        failureFlash: true
+    })
 );
+router.get('/logout', (req, res) => {
+    req.session.destroy(function (err) {
+        return res.redirect("/login");
+    });
+})
 
 router.get("/register", (req, res) => {
     res.render("authentication/signup")
@@ -49,7 +55,7 @@ router.post("/register", auth.validateRegister, async (req, res) => {
         return res.redirect("/login");
     } catch (err) {
         req.flash("error", err);
-        console.log('error from catch',err)
+        console.log('error from catch', err)
         return res.redirect("/register");
     }
 })
@@ -57,6 +63,10 @@ router.post("/register", auth.validateRegister, async (req, res) => {
 
 router.get("/forgot", (req, res) => {
     res.render("authentication/forgotpass")
+})
+router.get("/changepassword",(req,res)=>{
+
+    res.render("authentication/changepass",{})
 })
 
 let createNewUser = (data) => {
@@ -78,7 +88,7 @@ let createNewUser = (data) => {
             //create a new account
             db.query(' INSERT INTO users set ? ', userItem, function (err, rows) {
                     if (err) {
-                        console.log('error from createuser func',err)
+                        console.log('error from createuser func', err)
                         reject(false)
                     }
                     resolve("User Created");

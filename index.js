@@ -47,9 +47,11 @@ app.use((req, res, next) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
+const {checkLoggedIn} = require('./middleware')
+
 //importing routes
 
-app.get('/', (req, res) => {
+app.get('/',checkLoggedIn, (req, res) => {
     res.locals.currentUser = req.user;
     res.render("index")
 })
