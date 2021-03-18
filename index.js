@@ -42,6 +42,7 @@ app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     res.locals.currentUser = req.user
+    res.locals.returnTO = req.headers.referer
 
     next();
 });
@@ -57,20 +58,23 @@ const {checkLoggedIn, isVerified} = require('./middleware')
 const userRoutes = require('./routes/user')
 app.use("/", userRoutes)
 
-app.get('/',checkLoggedIn,isVerified, (req, res) => {
+app.get('/', checkLoggedIn, isVerified, (req, res) => {
     res.locals.currentUser = req.user;
+
+
     res.render("index")
 })
 
-app.get('/newBooking',checkLoggedIn, isVerified, async (req, res) => {
+app.get('/newBooking', checkLoggedIn, isVerified, async (req, res) => {
     res.locals.currentUser = req.user;
+
     const sql = "SELECT * FROM floor"
-    try{
-        await db.query(sql,(err,floors)=>{
-            return res.render('newBooking',{floors})
+    try {
+        await db.query(sql, (err, floors) => {
+            return res.render('newBooking', {floors})
         })
 
-    }catch (e) {
+    } catch (e) {
         if (e.errno === 19) {
             res.status(400).json('Duplication error from database');
         } else {
@@ -79,15 +83,35 @@ app.get('/newBooking',checkLoggedIn, isVerified, async (req, res) => {
     }
 
 })
-app.get('/floor/:id',checkLoggedIn, isVerified, async (req, res) => {
+app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res) => {
     res.locals.currentUser = req.user;
+    console.log(req.headers)
+
+
     const sql = `SELECT * FROM room WHERE floor_id = ${req.params.id}`
-    try{
-        await db.query(sql,req.params.id,(err,rooms)=>{
-            return res.render('showRoom',{rooms})
+    try {
+        await db.query(sql, req.params.id, (err, rooms) => {
+            return res.render('showRoom', {rooms})
         })
 
-    }catch (e) {
+    } catch (e) {
+        if (e.errno === 19) {
+            res.status(400).json('Duplication error from database');
+        } else {
+            res.status(400).json('Something broke! ' + e);
+        }
+    }
+
+})
+app.get('/room/:id', checkLoggedIn, isVerified, async (req, res) => {
+    res.locals.currentUser = req.user;
+    const sql = `SELECT * FROM desk WHERE room_id = ${req.params.id}`
+    try {
+        await db.query(sql, req.params.id, (err, desks) => {
+            return res.render('showDesk', {desks})
+        })
+
+    } catch (e) {
         if (e.errno === 19) {
             res.status(400).json('Duplication error from database');
         } else {
@@ -100,12 +124,12 @@ app.get('/floor/:id',checkLoggedIn, isVerified, async (req, res) => {
 app.get('/check/:id', async (req, res) => {
     res.locals.currentUser = req.user;
     const sql = `SELECT * FROM room WHERE floor_id = ${req.params.id}`
-    try{
-        await db.query(sql,(err,rooms)=>{
+    try {
+        await db.query(sql, (err, rooms) => {
             console.log(rooms)
         })
 
-    }catch (e) {
+    } catch (e) {
         if (e.errno === 19) {
             res.status(400).json('Duplication error from database');
         } else {

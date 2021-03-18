@@ -17,11 +17,11 @@
 
 
                     <!-- Nav Item - Charts -->
-                    <%for(let floor of rooms){%>
+                    <%for(let room of rooms){%>
                     <li class="nav-item">
-                        <a class="nav-link" href="/floor/<%=floor.floor_id%>">
+                        <a class="nav-link" href="/room/<%=room.room_id%>">
                             <i class="fas fa-fw fa-chart-area"></i>
-                            <span><%= floor.floor_name %></span>
+                            <span><%= room.room_name %></span>
                         </a>
                     </li>
                     <%}%>
@@ -32,7 +32,8 @@
 
                     <!-- Sidebar Toggler (Sidebar) -->
                     <div class="text-center d-none d-md-inline">
-                        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+
+                        <a  class="rounded-circle border-0" id="sidebarToggle" href="<%=returnTO%>"> </a>
                     </div>
 
 
@@ -51,23 +52,3 @@
 </div>
 <!-- End of Page Wrapper -->
 
-
-<!-- Bootstrap core JavaScript-->
-<script src="vendor/jquery/jquery.min.js"></script>
-<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-<!-- Core plugin JavaScript-->
-<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-<!-- Custom scripts for all pages-->
-<script src="javascripts/sb-admin-2.min.js"></script>
-
-<!-- Page level plugins -->
-<script src="vendor/chart.js/Chart.min.js"></script>
-
-<!-- Page level custom scripts -->
-<script src="javascripts/demo/chart-area-demo.js"></script>
-<script src="javascripts/demo/chart-pie-demo.js"></script>
-
-</body>
-</html>

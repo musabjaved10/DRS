@@ -1,0 +1,49 @@
+<% layout("./layout/boilerplate") %>
+
+<!-- Sidebar -->
+<div class="d-flex flex-row-reverse">
+    <ul class="d-flex navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+        <li class="nav-item active">
+            <a class="nav-link text-center" href="">
+                <span><strong>Floors</strong></span></a>
+        </li>
+
+
+        <!-- Nav Item - Charts -->
+        <%for(let desk of desks){%>
+        <li class="nav-item">
+            <a class="nav-link" href="/floor/<%=desk.desk_id%>">
+                <i class="fas fa-fw fa-chart-area"></i>
+                <span><%= desk.desk_name %></span>
+            </a>
+        </li>
+        <%}%>
+
+
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block">
+
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+
+
+    </ul>
+</div>
+
+
+</div>
+<!-- Page content (insert things here) -->
+
+<!-- End ofPage content (insert things above) -->
+
+<!-- End of Main Content -->
+</div>
+<!-- End of Content Wrapper -->
+</div>
+<!-- End of Page Wrapper -->
+
