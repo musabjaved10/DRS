@@ -85,7 +85,6 @@ app.get('/newBooking', checkLoggedIn, isVerified, async (req, res) => {
 })
 app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res) => {
     res.locals.currentUser = req.user;
-    console.log(req.headers)
 
 
     const sql = `SELECT * FROM room WHERE floor_id = ${req.params.id}`
