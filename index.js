@@ -15,8 +15,9 @@ app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({extended: true}));
+app.use(express.static(path.join(__dirname, 'public')))
 app.use(methodOverride("_method"));
-app.use(express.static(path.join(__dirname, "public")));
+
 
 //use cookie parser
 app.use(cookieParser('secret'));
@@ -60,6 +61,7 @@ app.get('/',checkLoggedIn,isVerified, (req, res) => {
     res.locals.currentUser = req.user;
     res.render("index")
 })
+
 app.get('/newBooking',checkLoggedIn, isVerified, async (req, res) => {
     res.locals.currentUser = req.user;
     const sql = "SELECT * FROM floor"
@@ -77,12 +79,12 @@ app.get('/newBooking',checkLoggedIn, isVerified, async (req, res) => {
     }
 
 })
-app.get('/floor:',checkLoggedIn, isVerified, async (req, res) => {
+app.get('/floor/:id',checkLoggedIn, isVerified, async (req, res) => {
     res.locals.currentUser = req.user;
-    const sql = `SELECT floor.*, room.* FROM room, floor WHERE floor_id = ${req.params.id}  room.floor_id = floor.floor_id`
+    const sql = `SELECT * FROM room WHERE floor_id = ${req.params.id}`
     try{
         await db.query(sql,req.params.id,(err,rooms)=>{
-            return res.render('floors',{rooms,floor})
+            return res.render('showRoom',{rooms})
         })
 
     }catch (e) {
@@ -94,9 +96,10 @@ app.get('/floor:',checkLoggedIn, isVerified, async (req, res) => {
     }
 
 })
+
 app.get('/check/:id', async (req, res) => {
     res.locals.currentUser = req.user;
-    const sql = `SELECT floor.*, room.* FROM room, floor WHERE room.floor_id = floor.floor_id`
+    const sql = `SELECT * FROM room WHERE floor_id = ${req.params.id}`
     try{
         await db.query(sql,(err,rooms)=>{
             console.log(rooms)
