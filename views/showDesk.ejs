@@ -1,7 +1,9 @@
 <% layout("./layout/boilerplate") %>
-
+<link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 <!-- Sidebar -->
-<div class="d-flex flex-row-reverse">
+<div class="d-flex flex-row-reverse justify-content-between">
+
+    <div>
     <ul class="d-flex navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
         <!-- Divider -->
@@ -13,28 +15,70 @@
 
 
         <!-- Nav Item - Charts -->
-        <%for(let desk of desks){%>
-        <li class="nav-item">
-            <a class="nav-link" href="/floor/<%=desk.desk_id%>">
-                <i class="fas fa-fw fa-chart-area"></i>
-                <span><%= desk.desk_name %></span>
-            </a>
-        </li>
-        <%}%>
-
+        <% for(let desk of desks){ %>
+            <li class="nav-item">
+                <a class="nav-link" href="/desk/<%= desk.desk_id %>">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span><%= desk.desk_name %></span>
+                </a>
+            </li>
+        <% } %>
 
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
 
         <!-- Sidebar Toggler (Sidebar) -->
         <div class="text-center d-none d-md-inline">
-            <a href="<%=returnTO%>" class="btn btn-primary btn-circle btn-sm">
+            <a href="<%= returnTO %>" class="btn btn-primary btn-circle btn-sm">
                 <i class="fas fa-long-arrow-alt-left"></i>
             </a>
         </div>
 
-
     </ul>
+    <!--        End of side bar-->
+    </div>
+<!--    Desk table-->
+    <div class="container-fluid">
+
+
+        <!-- DataTales Example -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>Desk Name</th>
+                            <th>Status</th>
+
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>Desk Name</th>
+                            <th>Status</th>
+
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        <%for(let desk of desks){%>
+                            <tr>
+                                <td><a href="/desk/<%=desk.desk_status === "available" ? desk.desk_id : `booked/${desk.desk_id}`%>"><%=desk.desk_name%></a></td>
+                                <td><%=desk.desk_status%></td>
+                            </tr>
+                        <%}%>
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 
@@ -48,4 +92,3 @@
 <!-- End of Content Wrapper -->
 </div>
 <!-- End of Page Wrapper -->
-

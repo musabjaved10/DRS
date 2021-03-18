@@ -119,13 +119,46 @@ app.get('/room/:id', checkLoggedIn, isVerified, async (req, res) => {
     }
 
 })
+app.get('/desk/:id', checkLoggedIn, isVerified, async (req, res) => {
+    res.locals.currentUser = req.user;
+    const sql = `SELECT * FROM desk where desk_id = ${req.params.id}`
+    try {
+        await db.query(sql, req.params.id, (err, desks) => {
+            return res.render('deskDetails', {desks})
+        })
+
+    } catch (e) {
+        if (e.errno === 19) {
+            res.status(400).json('Duplication error from database');
+        } else {
+            res.status(400).json('Something broke! ' + e);
+        }
+    }
+})
+app.get('/desk/booked/:id', checkLoggedIn, isVerified, async (req, res) => {
+    res.locals.currentUser = req.user;
+    const sql = `SELECT booking_details.*,desk_name,desk_status, (CONCAT(name , " ", surname  ))as name FROM booking_details,desk,users WHERE  booking_details.desk_id = desk.desk_id AND booking_details.user_id = users.user_id having desk_id = ${req.params.id}`
+    try {
+        await db.query(sql, req.params.id, (err, desks) => {
+            return res.render('deskDetails', {desks})
+        })
+
+    } catch (e) {
+        if (e.errno === 19) {
+            res.status(400).json('Duplication error from database');
+        } else {
+            res.status(400).json('Something broke! ' + e);
+        }
+    }
+})
 
 app.get('/check/:id', async (req, res) => {
     res.locals.currentUser = req.user;
-    const sql = `SELECT * FROM room WHERE floor_id = ${req.params.id}`
+    const sql = `SELECT booking_details.*,desk_name,name FROM booking_details,desk,users WHERE  booking_details.desk_id = desk.desk_id AND booking_details.user_id = users.user_id having desk_id = ${req.params.id}`
+    const booking_details = {desk_name:String, desk_status:String, booker:String,}
     try {
-        await db.query(sql, (err, rooms) => {
-            console.log(rooms)
+        await db.query(sql,async (err, desks) => {
+            console.log(desks)
         })
 
     } catch (e) {
