@@ -18,6 +18,8 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(methodOverride("_method"));
 
+const date = new Date();
+let mydate = `${date.getFullYear()}-${("0" + date.getMonth()).slice(-2)}-${date.getDate()}`
 
 //use cookie parser
 app.use(cookieParser('secret'));
@@ -43,7 +45,7 @@ app.use((req, res, next) => {
     res.locals.error = req.flash('error');
     res.locals.currentUser = req.user
     res.locals.returnTO = req.headers.referer
-
+    res.locals.myDate = req.session.date || mydate
     next();
 });
 // //Configure passport middleware
@@ -60,13 +62,22 @@ app.use("/", userRoutes)
 
 app.get('/', checkLoggedIn, isVerified, (req, res) => {
     res.locals.currentUser = req.user;
-
-
+    console.log(req.session.date)
     res.render("index")
 })
+app.post('/', checkLoggedIn, isVerified, (req, res) => {
+    res.locals.currentUser = req.user;
+    req.session.date = req.body.date
+    return res.redirect('/')
+
+})
+
 
 app.get('/newBooking', checkLoggedIn, isVerified, async (req, res) => {
+    console.log(req.session.date)
+
     res.locals.currentUser = req.user;
+    console.log(req.session.date)
 
     const sql = "SELECT * FROM floor"
     try {
@@ -154,11 +165,15 @@ app.get('/desk/booked/:id', checkLoggedIn, isVerified, async (req, res) => {
 
 app.get('/check/:id', async (req, res) => {
     res.locals.currentUser = req.user;
-    const sql = `SELECT booking_details.*,desk_name,name FROM booking_details,desk,users WHERE  booking_details.desk_id = desk.desk_id AND booking_details.user_id = users.user_id having desk_id = ${req.params.id}`
+
+    const sql = 'SELECT * from booking_details'
     const booking_details = {desk_name:String, desk_status:String, booker:String,}
     try {
-        await db.query(sql,async (err, desks) => {
-            console.log(desks)
+        await db.query(sql,async (err, dates) => {
+            for(let date of dates){
+                console.log(date.book_date)
+                console.log(date.book_date <= "2020-100-20  5")
+            }
         })
 
     } catch (e) {
