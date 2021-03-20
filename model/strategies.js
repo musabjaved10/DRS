@@ -18,11 +18,12 @@ passport.use(new LocalStrategy({
             await findUserByEmail(email).then(async (user) => {
 
                 if (!user) {
-                    return done(null, false, req.flash("error", `This user email "${email}" doesn't exist`));
+                    return done(null, false, req.flash("error", `Email ${email} doesn't exist`));
                 }
                 if (user) {
                     // console.log('heyyy its a user', user)
                     let match = await comparePassword(password, user);
+
                     if (match === true) {
                         // console.log('matching done here is the user >', user)
                         return done(null, user, null)
@@ -96,7 +97,7 @@ let comparePassword = (password, userObject) => {
                 if (isMatch) {
                     resolve(true);
                 } else {
-                    resolve(`The password that you've entered is incorrect`);
+                    resolve(`Incorrect Password`);
                 }
             });
         } catch (e) {

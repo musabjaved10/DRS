@@ -8,7 +8,7 @@ const passport = require('../model/strategies')
 const {checkLoggedIn, checkLoggedOut, isVerified ,isAdmin, isSuperAdmin} = require('../middleware')
 
 
-router.get("/login", (req, res) => {
+router.get("/login",checkLoggedOut, (req, res) => {
     res.render("authentication/login")
 })
 router.post("/login",checkLoggedOut, passport.authenticate("local", {
@@ -71,6 +71,45 @@ router.get("/changepassword",checkLoggedIn,(req,res)=>{
     res.locals.currentUser = req.user
     res.render("authentication/changepass",)
 })
+router.post("/changepassword",checkLoggedIn,async(req,res)=>{
+    res.locals.currentUser = req.user
+    try {
+        const {currentPassword, newPassword} = req.body;
+        let match = await comparePassword(currentPassword,req.user.password)
+        if(match === true){
+            let salt = bcrypt.genSaltSync(10);
+            let hashedPassword = bcrypt.hashSync(newPassword,salt)
+            await db.query(`UPDATE users SET password = "${hashedPassword}" WHERE user_id = ${req.user.user_id} `,async(err,result)=>{
+                if(err){
+                    console.log(err)
+                    req.flash("error",err)
+                    return res.redirect('/changepassword')
+                }
+                await db.query(`UPDATE users SET isVerified = 1 where user_id = ${req.user.user_id}`,(err,result)=>{
+                    if(err){
+                        console.log(err)
+                        req.flash("error",'Oops! something went wrong. Please try again')
+                        return res.redirect('/changepassword')
+                    }
+
+                    req.flash('success','Password has been changed successfully')
+
+                    return res.redirect('/')
+                })
+            })
+        }else{
+            req.flash('error','Incorrect current password')
+            return res.redirect('/changepassword')
+        }
+
+    } catch (err) {
+        req.flash("error", err);
+        console.log('error from catch', err)
+        return res.redirect("/changepassword");
+    }
+
+
+})
 
 let createNewUser = (data) => {
     return new Promise(async (resolve, reject) => {
@@ -117,6 +156,23 @@ let checkExistEmail = (email) => {
             );
         } catch (err) {
             reject(err);
+        }
+    });
+};
+
+let comparePassword = (password,hashedPassword) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await bcrypt.compare(password, hashedPassword).then((isMatch) => {
+                if (isMatch) {
+                    resolve(true);
+                } else {
+                    resolve(`Incorrect Password`);
+                }
+            });
+        } catch (e) {
+
+            reject(e);
         }
     });
 };
