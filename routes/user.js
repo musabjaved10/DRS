@@ -5,7 +5,7 @@ const auth = require('../validation/authValidation')
 const bcrypt = require('bcrypt')
 const db = require('../model/dbConnection')
 const passport = require('../model/strategies')
-const {checkLoggedIn, checkLoggedOut, isVerified} = require('../middleware')
+const {checkLoggedIn, checkLoggedOut, isVerified ,isAdmin, isSuperAdmin} = require('../middleware')
 
 
 router.get("/login", (req, res) => {
@@ -24,7 +24,10 @@ router.get('/logout', (req, res) => {
     });
 })
 
-router.get("/register", (req, res) => {
+router.get("/register", checkLoggedIn, isAdmin, (req, res) => {
+    res.render("authentication/signup")
+})
+router.get("/newAdmin", checkLoggedIn, isSuperAdmin,(req, res) => {
     res.render("authentication/signup")
 })
 router.post("/register", auth.validateRegister, async (req, res) => {

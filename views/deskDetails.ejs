@@ -15,7 +15,7 @@
 
 
             <!-- Nav Item - Charts -->
-            <% for(let desk of desks){ %>
+            <% for(let desk of deskResult){ %>
                 <li class="nav-item">
                     <a class="nav-link" href="/desk/<%= desk.desk_id %>">
                         <i class="fas fa-fw fa-chart-area"></i>
@@ -60,13 +60,20 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <%for(let desk of desks){%>
+                        <%for(let desk of deskResult){%>
                         <tr>
                             <td><a href="/"><%=desk.desk_name%></a></td>
                             <td><%=desk.desk_status%></td>
-                            <td><%=desk.name%></td>
+                            <td><%=desk.booked_by.includes(`${currentUser.name} ${currentUser.surname}`) ? "You" : desk.booked_by%></td>
                             <td>
-                                <form action=""><button class="btn btn-success" <%=desk.desk_status==="available" ? null : "disabled" %>   >Book Now</button></form></td>
+                                <form action="/book" method="post">
+                                    <div class="d-none">
+                                        <input type="text" value="<%=desk.room_id%>" name="room_id">
+                                        <input type="text" value="<%=desk.desk_id%>" name="desk_id">
+                                    </div>
+                                    <button class="btn btn-success" <%=desk.desk_status==="available" ? null : "disabled" %>   >Book Now</button>
+                                </form>
+                            </td>
 
                         </tr>
                         <%}%>

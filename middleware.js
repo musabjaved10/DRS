@@ -18,3 +18,17 @@ module.exports.isVerified = (req,res,next)=>{
     }
     next()
 }
+module.exports.isAdmin = (req,res,next)=>{
+    if(req.user.role == 0 || req.user.role == 1 ){
+        return next()
+    }
+    req.flash('error', 'You are not authorized');
+    return res.redirect("/")
+}
+module.exports.isSuperAdmin = (req,res,next)=>{
+    if(req.user.role != 0){
+        req.flash('error', 'You are not authorized');
+        return res.redirect("/")
+    }
+    next()
+}

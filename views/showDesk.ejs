@@ -15,7 +15,7 @@
 
 
         <!-- Nav Item - Charts -->
-        <% for(let desk of desks){ %>
+        <% for(let desk of deskResult){ %>
             <li class="nav-item">
                 <a class="nav-link" href="/desk/<%= desk.desk_id %>">
                     <i class="fas fa-fw fa-chart-area"></i>
@@ -58,7 +58,7 @@
                         </thead>
 
                         <tbody>
-                        <%for(let desk of desks){%>
+                        <%for(let desk of deskResult){%>
                             <tr>
                                 <td><a href="/desk/<%=desk.desk_status === "available" ? desk.desk_id : `booked/${desk.desk_id}`%>"><%=desk.desk_name%></a></td>
                                 <td><%=desk.desk_status%></td>
