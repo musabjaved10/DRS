@@ -1,0 +1,71 @@
+<% layout("./layout/boilerplate") %>
+
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">Blank Page</h1>
+    <!-- Row container -->
+    <div class="row">
+
+        <!-- Booked card snippet -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-0">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">My Desk Name</div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-sm-6 d-flex align-items-center">
+                                <span class="myLabel booked"  data-toggle="tooltip" data-placement="right" title="by Syed Maaz">
+                                    <b>Booked</b>
+                                </span>
+                            </div>
+
+                            <div class="col-sm-6 d-flex align-items-center justify-content-end">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Available card sinppet -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-0">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">My Desk Name</div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-sm-6 d-flex align-items-center">
+                                <span class="myLabel available">
+                                    <b>Available</b>
+                                </span>
+                            </div>
+
+                            <div class="col-sm-6 d-flex align-items-center justify-content-end">
+                                <form action="/" method="get">
+                                    <div class="d-none">
+                                        <input type="text" value="" name="room_id">
+                                        <input type="text" value="" name="desk_id">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary py-1">Book now</button>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

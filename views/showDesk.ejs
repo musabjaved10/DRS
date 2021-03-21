@@ -15,11 +15,11 @@
 
 
         <!-- Nav Item - Charts -->
-        <% for(let desk of deskResult){ %>
+        <% for(let desk of desks){ %>
             <li class="nav-item">
-                <a class="nav-link" href="/desk/<%= desk.desk_id %>">
+                <a class="nav-link" href="/desk/<%= desk.desk.desk_id %>">
                     <i class="fas fa-fw fa-chart-area"></i>
-                    <span><%= desk.desk_name %></span>
+                    <span><%= desk.desk.desk_name %></span>
                 </a>
             </li>
         <% } %>
@@ -39,38 +39,81 @@
     </div>
 <!--    Desk table-->
     <div class="container-fluid">
+        <!-- Row container -->
+        <div class="row">
 
+            <%for(let desk of desks){%>
+                <%if(desk.booking_details.book_date == null){%>
+                <!-- Available card sinppet -->
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-0">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h4 mb-0 font-weight-bold text-gray-800"><%=desk.desk.desk_name%></div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="row">
+                                    <div class="col-sm-6 d-flex align-items-center">
+                                <span class="myLabel available">
+                                    <b>Available</b>
+                                </span>
+                                    </div>
 
-        <!-- DataTales Example -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Information</h6>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                        <thead>
-                        <tr>
-                            <th>Desk Name</th>
-                            <th>Status</th>
+                                    <div class="col-sm-6 d-flex align-items-center justify-content-end">
+                                        <form action="/book" method="post" onsubmit="return confirm('Confirm this desk ?');">
+                                            <div class="d-none">
+                                                <input type="text" value="<%=desk.desk.desk_id%>" name="desk_id">
+                                                <input type="text" value="<%=desk.desk.room_id%>" name="room_id">
+                                                <input type="text" value="<%=desk.room.floor_id%>" name="floor_id">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary btn-sm py-1">Book now</button>
+                                        </form>
 
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        <%for(let desk of deskResult){%>
-                            <tr>
-                                <td><a href="/desk/<%=desk.desk_status === "available" ? desk.desk_id : `booked/${desk.desk_id}`%>"><%=desk.desk_name%></a></td>
-                                <td><%=desk.desk_status%></td>
-                            </tr>
-                        <%}%>
-
-
-                        </tbody>
-                    </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+                <%}else{%>
+                <!-- Booked card snippet -->
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 w-auto py-0">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h4 mb-0 font-weight-bold text-gray-800"><%=desk.desk.desk_name%></div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="row">
+                                    <div class="col-sm-6 d-flex align-items-center">
+                                <span class="myLabel booked"  data-toggle="tooltip" data-placement="right" title="by <%=`${desk.users.name} ${desk.users.surname}`%>">
+                                    <b>Booked</b>
+                                </span>
+                                    </div>
+
+                                    <div class="col-sm-6 d-flex align-items-center justify-content-end">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <%}%>
+
+            <%}%>
+
+
+
+
+
+
         </div>
+
+
 
     </div>
 </div>

@@ -95,14 +95,16 @@ app.post('/book', checkLoggedIn, isVerified, async (req, res) => {
 
     const sql = `INSERT into booking_details set ?`
     try {
-        const booking =  {
-            user_id:req.user.user_id,
-            room_id:req.body.room_id,
-            desk_id:req.body.desk_id,
+        const booking = {
+            user_id: req.user.user_id,
+            room_id: req.body.room_id,
+            desk_id: req.body.desk_id,
+            floor_id: req.body.floor_id,
             book_date: req.session.date,
         }
-        await db.query(sql,booking, (err, data) => {
-            console.log(data)
+        console.log(req.body)
+        await db.query(sql, booking, (err, data) => {
+            req.flash('success',`success, your desk has been booked for ${req.session.date}`)
             return res.redirect("/")
         })
 
@@ -134,39 +136,23 @@ app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res) => {
     }
 
 })
+
 app.get('/room/:id', checkLoggedIn, isVerified, async (req, res) => {
     res.locals.currentUser = req.user;
-    let deskResult = []
-    let deskBooked = []
-
-    function newDesk(desk_id, desk_status, desk_name) {
-        const result = {desk_id, desk_status, desk_name}
-        return result
-    }
-
-    const sql = `SELECT * from desk where room_id = ${req.params.id}`
-    const sql1 = `SELECT desk_id,checked_in from booking_details WHERE book_date = "${req.session.date || mydate}"`
+    console.log(req.session.date)
+    res.locals.date = req.session.date
+    const sql = `SELECT * FROM desk       
+        left join room on room.room_id = desk.room_id
+        left join booking_details on desk.desk_id = booking_details.desk_id 
+        AND book_date = "${req.session.date}"  
+        left join users on booking_details.user_id = users.user_id 
+        WHERE desk.room_id = ${req.params.id}
+        `
 
     try {
-        await db.query(sql1, async (err, data) => {
-            for (let item of data) {
-                deskBooked.push(item.desk_id)
-            }
+        await db.query({sql, nestTables: true}, async (err, desks) => {
+            return res.render('showDesk', {desks})
         })
-        await db.query(sql, async (err, data) => {
-                for (let item of data) {
-
-                    if (deskBooked.includes(item.desk_id)) {
-
-                        deskResult.push(newDesk(item.desk_id, 'booked', item.desk_name))
-                    } else {
-
-                        deskResult.push(newDesk(item.desk_id, 'available', item.desk_name))
-                    }
-                }
-                res.render("showDesk", {deskResult})
-            }
-        )
 
 
     } catch (e) {
@@ -178,106 +164,14 @@ app.get('/room/:id', checkLoggedIn, isVerified, async (req, res) => {
     }
 
 })
-app.get('/desk/:id', checkLoggedIn, isVerified, async (req, res) => {
+
+app.get('/blank', async (req, res) => {
     res.locals.currentUser = req.user;
-    let deskResult = []
-    let deskBooked = []
-
-    function newDesk(desk_id, desk_status, desk_name, room_id) {
-        const result = {desk_id, desk_status, desk_name, room_id}
-        return result
-    }
-
-    const sql = `SELECT * from desk where desk_id = ${req.params.id}`
-    const sql1 = `SELECT desk_id from booking_details WHERE book_date = "${req.session.date || mydate}"`
-
-    try {
-        await db.query(sql1, async (err, data) => {
-            for (let item of data) {
-                deskBooked.push(item.desk_id)
-            }
-        })
-        await db.query(sql, async (err, data) => {
-                for (let item of data) {
-
-                    if (deskBooked.includes(item.desk_id)) {
-
-                        deskResult.push(newDesk(item.desk_id, 'booked', item.desk_name, item.room_id))
-                    } else {
-
-                        deskResult.push(newDesk(item.desk_id, 'available', item.desk_name,item.room_id))
-                    }
-                }
-                res.render("deskDetails", {deskResult})
-            }
-        )
-
-
-    } catch (e) {
-        if (e.errno === 19) {
-            res.status(400).json('Duplication error from database');
-        } else {
-            res.status(400).json('Something broke! ' + e);
-        }
-    }
-})
-
-app.get('/desk/booked/:id', checkLoggedIn, isVerified, async (req, res) => {
-    res.locals.currentUser = req.user;
-    // const sql = `SELECT (CONCAT(name , " ", surname  ))as name FROM booking_details,desk,users WHERE  booking_details.desk_id = desk.desk_id AND booking_details.user_id = users.user_id having desk_id = ${req.params.id}`
-    let deskResult = []
-    let deskBooked = []
-    let booker;
-
-    function newDesk(desk_id, desk_status, desk_name, booked_by) {
-        const result = {desk_id, desk_status, desk_name, booked_by}
-        return result
-    }
-
-    const sql = `SELECT * from desk where desk_id = ${req.params.id}`
-    const sql1 = `SELECT desk_id, user_id from booking_details WHERE book_date = "${req.session.date || mydate}"`
-    const sql2 = `SELECT (CONCAT(name , " ", surname  )) as name from users where user_id = (select user_id from booking_details where desk_id = ${req.params.id} AND  book_date = "${req.session.date}")`
-
-    try {
-        await db.query(sql2, async (err, data) => {
-            for (let item of data) {
-
-                booker = item.name
-            }
-        })
-        await db.query(sql1, async (err, data) => {
-            for (let item of data) {
-                deskBooked.push(item.desk_id)
-            }
-        })
-        await db.query(sql, async (err, data) => {
-                for (let item of data) {
-
-                    if (deskBooked.includes(item.desk_id)) {
-
-                        deskResult.push(newDesk(item.desk_id, 'booked', item.desk_name,booker))
-                    } else {
-
-                        deskResult.push(newDesk(item.desk_id, 'available', item.desk_name,booker))
-                    }
-                }
-                res.render("deskDetails", {deskResult})
-            }
-        )
-
-
-    } catch (e) {
-        if (e.errno === 19) {
-            res.status(400).json('Duplication error from database');
-        } else {
-            res.status(400).json('Something broke! ' + e);
-        }
-    }
+    res.render("blankPage")
 })
 
 app.get('/check/:id', async (req, res) => {
     res.locals.currentUser = req.user;
-
     let deskResult = []
     let deskBooked = []
 
@@ -296,7 +190,7 @@ app.get('/check/:id', async (req, res) => {
             }
         })
         await db.query(sql, async (err, data) => {
-            console.log(data)
+                console.log(data)
                 for (let item of data) {
 
                     if (deskBooked.includes(item.desk_id)) {
@@ -304,7 +198,7 @@ app.get('/check/:id', async (req, res) => {
                         deskResult.push(newDesk(item.desk_id, 'booked', item.desk_name, item.room_id))
                     } else {
 
-                        deskResult.push(newDesk(item.desk_id, 'available', item.desk_name,item.room_id))
+                        deskResult.push(newDesk(item.desk_id, 'available', item.desk_name, item.room_id))
                     }
                 }
                 res.render("deskDetails", {deskResult})

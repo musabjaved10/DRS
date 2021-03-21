@@ -61,6 +61,20 @@ body {
  border: none;
   outline: none;
 }
+.myLabel{
+  padding: 0px 10px;
+  color: #ffffff;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.booked{
+  background-color: #ed7d31;
+}
+
+.available{
+  background-color: #70ad47;
+}
 
 [tabindex="-1"]:focus:not(:focus-visible) {
   outline: 0 !important;
@@ -10817,7 +10831,7 @@ a:focus {
 }
 
 .bg-login-image {
-  background: url("https://source.unsplash.com/K4mSJ7kc0As/600x800");
+  background: url("https://www.intheblack.com/-/media/intheblack/allimages/sponsored-content/2018/dexus-office-space.jpg?rev=835b5eb0fcd5481b960b7abfeec3eed2");
   background-position: center;
   background-size: cover;
 }
