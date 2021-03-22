@@ -15,11 +15,15 @@
     </span>
     <span class="text">My Desks</span>
 </a>
-<!--    </div>-->
-<a href="#" class="btn btn-primary btn-icon-split">
+    <%if(currentUser && (currentUser.role == 0 || currentUser.role == 1)){%>
+    <!--    </div>-->
+    <a href="#" class="btn btn-primary btn-icon-split">
     <span class="icon text-white-50">
         <i class="fas fa-user-shield"></i>
     </span>
-    <span class="text">Admin View</span>
-</a>
+        <span class="text">Admin View</span>
+    </a>
+
+    <%}%>
+
 </div>

@@ -75,6 +75,16 @@ body {
 .available{
   background-color: #70ad47;
 }
+#floormap{
+  margin-left: 15em;
+  width: 20em;
+  height: 20em;
+}
+#roommap{
+  margin-left: 2em;
+  width: 10em;
+  height: 10em;
+}
 
 [tabindex="-1"]:focus:not(:focus-visible) {
   outline: 0 !important;

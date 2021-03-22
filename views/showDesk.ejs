@@ -10,17 +10,17 @@
         <hr class="sidebar-divider">
         <li class="nav-item active">
             <a class="nav-link text-center" href="">
-                <span><strong>Floors</strong></span></a>
+                <span><strong>Desks</strong></span></a>
         </li>
 
 
         <!-- Nav Item - Charts -->
         <% for(let desk of desks){ %>
-            <li class="nav-item">
-                <a class="nav-link" href="/desk/<%= desk.desk.desk_id %>">
-                    <i class="fas fa-fw fa-chart-area"></i>
+            <li class="nav-item ">
+                <ul class="nav-link" href="/desk/">
+                    <i class="fas fa-circle"></i>
                     <span><%= desk.desk.desk_name %></span>
-                </a>
+                </ul>
             </li>
         <% } %>
 
@@ -103,17 +103,9 @@
                     </div>
                 </div>
                 <%}%>
-
             <%}%>
 
-
-
-
-
-
         </div>
-
-
 
     </div>
 </div>
@@ -121,6 +113,7 @@
 
 </div>
 <!-- Page content (insert things here) -->
+
 
 <!-- End ofPage content (insert things above) -->
 
