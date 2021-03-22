@@ -1,58 +1,93 @@
 <% layout("./layout/boilerplate") %>
 
 
+<!-- Sidebar -->
+<div class="d-flex flex-row-reverse justify-content-between">
+    <div>
+        <ul class="d-flex navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+            <li class="nav-item active">
+                <a class="nav-link text-center" href="">
+                    <span><strong>Floors</strong></span></a>
+            </li>
 
 
+            <!-- Nav Item - Charts -->
+            <% for(let floor of mydata.floors){ %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/floor/<%= floor.floor_id %>">
+                        <i class="fas fa-fw fa-chart-area"></i>
+                        <span><%= floor.floor_name %></span>
+                    </a>
+                </li>
+            <% } %>
 
-            <!-- Sidebar -->
-            <div class="d-flex flex-row-reverse justify-content-between">
-                <ul class="d-flex navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
 
-                    <!-- Divider -->
-                    <hr class="sidebar-divider">
-                    <li class="nav-item active">
-                        <a class="nav-link text-center" href="">
-                            <span><strong>Floors</strong></span></a>
-                    </li>
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
 
-
-                    <!-- Nav Item - Charts -->
-                    <%for(let room of rooms){%>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/room/<%=room.room_id%>">
-                            <i class="fas fa-fw fa-chart-area"></i>
-                            <span><%= room.room_name %></span>
-                        </a>
-                    </li>
-                    <%}%>
-
-
-                    <!-- Divider -->
-                    <hr class="sidebar-divider d-none d-md-block">
-
-                    <!-- Sidebar Toggler (Sidebar) -->
-                    <div class="text-center d-none d-md-inline">
-
-                        <a href="/newBooking" class="btn btn-primary btn-circle btn-sm">
-                            <i class="fas fa-long-arrow-alt-left"></i>
-                        </a>
-                    </div>
-
-
-                </ul>
-                <div >
-                    <img id="roommap" class=" mt-5 w-auto h-auto" src="https://www.roomsketcher.com/wp-content/uploads/2015/11/RoomSketcher-Office-Layout-2417478.jpg" alt="roommap">
-                </div>
+                <a href="/newBooking" class="btn btn-primary btn-circle btn-sm">
+                    <i class="fas fa-long-arrow-alt-left"></i>
+                </a>
             </div>
 
-        </div>
-        <!-- Page content (insert things here) -->
-
-        <!-- End ofPage content (insert things above) -->
-
-        <!-- End of Main Content -->
+        </ul>
     </div>
-    <!-- End of Content Wrapper -->
+    <!--    Desk table-->
+    <div class="container-fluid">
+        <!-- Row container -->
+        <div class="row">
+            <div class="col-12">
+                <img id="roommap" class=" mt-5 w-75 h-75"
+                     src="https://www.roomsketcher.com/wp-content/uploads/2015/11/RoomSketcher-Office-Layout-2417478.jpg"
+                     alt="roommap">
+            </div>
+
+            <% for(let room of mydata.rooms){ %>
+
+            <!-- Available card sinppet -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-0">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="h4 mb-0 font-weight-bold text-gray-800"><%= room.room_name %></div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="row">
+                                <div class="col-sm-6 d-flex align-items-center">
+                                <span class="myLabel available">
+                                    <b><%=room.total_desks%> Desks</b>
+                                </span>
+                                </div>
+
+                                <div class="col-sm-6 d-flex align-items-center justify-content-end">
+                                    <a href="/room/<%= room.room_id %>" type="submit"
+                                       class="btn btn-primary btn-sm py-1">Visit Room</a>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+
+        </div>
+
+    </div>
+    <!-- Page content (insert things here) -->
+
+    <!-- End ofPage content (insert things above) -->
+
+    <!-- End of Main Content -->
+</div>
+<!-- End of Content Wrapper -->
 </div>
 <!-- End of Page Wrapper -->
 

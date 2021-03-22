@@ -2,7 +2,7 @@
 
 <!-- Sidebar -->
 <div class="d-flex flex-row-reverse justify-content-between">
-    <ul class="d-flex navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <ul class="d-flex navbar-nav bg-gradient-primary sidebar sidebar-dark accordion " id="accordionSidebar" >
 
         <!-- Divider -->
         <hr class="sidebar-divider">
@@ -14,8 +14,8 @@
 
         <!-- Nav Item - Charts -->
         <%for(let floor of floors){%>
-        <li class="nav-item">
-            <a class="nav-link" href="/floor/<%=floor.floor_id%>">
+        <li class="nav-item ">
+            <a class="nav-link " href="/floor/<%=floor.floor_id%>">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span><%= floor.floor_name %></span>
             </a>

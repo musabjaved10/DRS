@@ -85,6 +85,9 @@ body {
   width: 10em;
   height: 10em;
 }
+.customSidebar{
+  width: 15rem;
+}
 
 [tabindex="-1"]:focus:not(:focus-visible) {
   outline: 0 !important;
@@ -10841,19 +10844,19 @@ a:focus {
 }
 
 .bg-login-image {
-  background: url("https://www.intheblack.com/-/media/intheblack/allimages/sponsored-content/2018/dexus-office-space.jpg?rev=835b5eb0fcd5481b960b7abfeec3eed2");
+  background: url("../img/loginImage.jpg");
   background-position: center;
   background-size: cover;
 }
 
 .bg-register-image {
-  background: url("https://source.unsplash.com/Mv9hjnEUHR4/600x800");
+  background: url("../img/registerImage.jpg");
   background-position: center;
   background-size: cover;
 }
 
 .bg-password-image {
-  background: url("https://source.unsplash.com/oWTW-jNGl9I/600x800");
+  background: url("../img/forgotImage.jpg");
   background-position: center;
   background-size: cover;
 }

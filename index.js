@@ -122,9 +122,15 @@ app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res) => {
 
 
     const sql = `SELECT * FROM room WHERE floor_id = ${req.params.id}`
+    const sql2 = `SELECT * FROM floor`
+    let mydata = {rooms:[], floors:[]}
     try {
-        await db.query(sql, req.params.id, (err, rooms) => {
-            return res.render('showRoom', {rooms})
+        await db.query(sql, req.params.id, async (err, rooms) => {
+            mydata.rooms = rooms
+            await db.query(sql2, req.params.id, (err, floors) => {
+                mydata.floors = floors
+                res.render("showRoom",{mydata})
+            })
         })
 
     } catch (e) {
@@ -151,7 +157,33 @@ app.get('/room/:id', checkLoggedIn, isVerified, async (req, res) => {
 
     try {
         await db.query({sql, nestTables: true}, async (err, desks) => {
+            // console.log(desks)
             return res.render('showDesk', {desks})
+        })
+
+
+    } catch (e) {
+        if (e.errno === 19) {
+            res.status(400).json('Duplication error from database');
+        } else {
+            res.status(400).json('Something broke! ' + e);
+        }
+    }
+
+})
+app.get('/mybookings', checkLoggedIn, isVerified, async (req, res) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+    const sql = `SELECT * FROM desk               
+        left join booking_details on desk.desk_id = booking_details.desk_id           
+        left join users on booking_details.user_id = users.user_id 
+        where booking_details.user_id = ${req.user.user_id}
+        `
+
+    try {
+        await db.query({sql, nestTables: true}, async (err, bookings) => {
+            console.log(bookings)
+            return res.render('myAllBookings', {bookings})
         })
 
 

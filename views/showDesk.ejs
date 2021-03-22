@@ -1,5 +1,12 @@
 <% layout("./layout/boilerplate") %>
 <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+<%if(desks.length> 0){%>
+<h1 class="ml-5">Desks for <%=desks[0].room.room_name%></h1>
+<%}else{%>
+<h1 class="ml-5">This room doesn't have any desk</h1>
+    <%}%>
+
+
 <!-- Sidebar -->
 <div class="d-flex flex-row-reverse justify-content-between">
 
@@ -29,8 +36,13 @@
 
         <!-- Sidebar Toggler (Sidebar) -->
         <div class="text-center d-none d-md-inline">
-            <a href="<%= returnTO %>" class="btn btn-primary btn-circle btn-sm">
+            <a href="/newBooking" class="btn btn-primary btn-sm">
                 <i class="fas fa-long-arrow-alt-left"></i>
+                <span>All Floors</span>
+            </a>
+            <a href="<%=returnTO%>" class="btn btn-primary  btn-sm">
+                <i class="fas fa-long-arrow-alt-left"></i>
+                <span>Back to Floor</span>
             </a>
         </div>
 
