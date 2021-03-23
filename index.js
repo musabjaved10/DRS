@@ -20,6 +20,7 @@ app.use(methodOverride("_method"));
 
 const date = new Date();
 let mydate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${date.getDate() + 1}`
+let todayDate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${date.getDate()}`
 
 
 //use cookie parser
@@ -54,7 +55,34 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const {checkLoggedIn, isVerified} = require('./middleware')
+//ip address functionality
 
+// const { networkInterfaces } = require('os');
+// const nets = networkInterfaces();
+// const results = {};
+// for (const name of Object.keys(nets)) {
+//     for (const net of nets[name]) {
+//         // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+//         if (net.family === 'IPv4' && !net.internal) {
+//             if (!results[name]) {
+//                 results[name] = [];
+//             }
+//             results[name].push(net.address);
+//         }
+//     }
+// }
+
+
+//ip functionality?////
+var getIP = require('ipware')().get_ip;
+app.use(
+    function(req, res, next) {
+        var ipInfo = getIP(req);
+        console.log(ipInfo.clientIp);
+        // { clientIp: '127.0.0.1', clientIpRoutable: false }
+        next();
+    }
+)
 //importing routes
 
 
@@ -64,6 +92,8 @@ app.use("/", userRoutes)
 app.get('/', checkLoggedIn, isVerified, (req, res) => {
     res.locals.currentUser = req.user;
     req.session.date = req.session.date || mydate
+    // console.log(results)
+
     res.render("index")
 })
 app.post('/', checkLoggedIn, isVerified, (req, res) => {
@@ -174,16 +204,44 @@ app.get('/room/:id', checkLoggedIn, isVerified, async (req, res) => {
 app.get('/mybookings', checkLoggedIn, isVerified, async (req, res) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
+    res.locals.todayDate = todayDate
     const sql = `SELECT * FROM desk               
+        left join room on desk.room_id = room.room_id 
+        left join floor on floor.floor_id = room.room_id
         left join booking_details on desk.desk_id = booking_details.desk_id           
         left join users on booking_details.user_id = users.user_id 
-        where booking_details.user_id = ${req.user.user_id}
+        where booking_details.user_id = ${req.user.user_id} ORDER BY booking_details.book_date DESC
         `
 
     try {
         await db.query({sql, nestTables: true}, async (err, bookings) => {
-            console.log(bookings)
+            // console.log(bookings)
             return res.render('myAllBookings', {bookings})
+        })
+
+
+    } catch (e) {
+        if (e.errno === 19) {
+            res.status(400).json('Duplication error from database');
+        } else {
+            res.status(400).json('Something broke! ' + e);
+        }
+    }
+
+})
+app.post('/checkin', checkLoggedIn, isVerified, async (req, res) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+    res.locals.todayDate = todayDate
+
+
+    try {
+        const {booking_id, book_date} = req.body;
+        const sql = `UPDATE booking_details set checked_in = 1 WHERE booking_id = "${booking_id}" and book_date = "${book_date}" `
+
+        await db.query({sql, nestTables: true}, async (err, data) => {
+            req.flash('success','You have checked-in')
+            return res.redirect('/mybookings')
         })
 
 
