@@ -305,6 +305,10 @@ app.get('/check/:id', async (req, res) => {
     }
 
 })
+app.all('*',(req,res)=>{
+    res.locals.currentUser = req.user;
+    res.render('error')
+})
 
 
 app.listen(PORT, () => {
