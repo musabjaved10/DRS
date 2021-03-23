@@ -10,6 +10,9 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const passport = require('passport')
 
+const expressError = require('./utils/expressError')
+const catchAsync = require("./utils/catchAsync");
+
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -96,7 +99,7 @@ app.get('/', checkLoggedIn, isVerified, (req, res) => {
 
     res.render("index")
 })
-app.post('/', checkLoggedIn, isVerified, (req, res) => {
+app.post('/', checkLoggedIn, isVerified, (req, res, next) => {
     res.locals.currentUser = req.user;
     req.session.date = req.body.date
     return res.redirect('/')
@@ -104,24 +107,24 @@ app.post('/', checkLoggedIn, isVerified, (req, res) => {
 })
 
 
-app.get('/newBooking', checkLoggedIn, isVerified, async (req, res) => {
+app.get('/newBooking', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
     const sql = "SELECT * FROM floor"
     try {
         await db.query(sql, (err, floors) => {
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
             return res.render('newBooking', {floors})
         })
 
     } catch (e) {
-        if (e.errno === 19) {
-            res.status(400).json('Duplication error from database');
-        } else {
-            res.status(400).json('Something broke! ' + e);
-        }
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
     }
 
 })
-app.post('/book', checkLoggedIn, isVerified, async (req, res) => {
+app.post('/book', checkLoggedIn, isVerified, async (req, res, next) => {
 
     const sql = `INSERT into booking_details set ?`
     try {
@@ -134,20 +137,20 @@ app.post('/book', checkLoggedIn, isVerified, async (req, res) => {
         }
         console.log(req.body)
         await db.query(sql, booking, (err, data) => {
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
             req.flash('success',`success, your desk has been booked for ${req.session.date}`)
             return res.redirect("/")
         })
 
     } catch (e) {
-        if (e.errno === 19) {
-            res.status(400).json('Duplication error from database');
-        } else {
-            res.status(400).json('Something broke! ' + e);
-        }
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
     }
 
 })
-app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res) => {
+app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
 
 
@@ -156,6 +159,9 @@ app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res) => {
     let mydata = {rooms:[], floors:[]}
     try {
         await db.query(sql, req.params.id, async (err, rooms) => {
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
             mydata.rooms = rooms
             await db.query(sql2, req.params.id, (err, floors) => {
                 mydata.floors = floors
@@ -164,16 +170,13 @@ app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res) => {
         })
 
     } catch (e) {
-        if (e.errno === 19) {
-            res.status(400).json('Duplication error from database');
-        } else {
-            res.status(400).json('Something broke! ' + e);
-        }
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
     }
 
 })
 
-app.get('/room/:id', checkLoggedIn, isVerified, async (req, res) => {
+app.get('/room/:id', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
     console.log(req.session.date)
     res.locals.date = req.session.date
@@ -188,20 +191,20 @@ app.get('/room/:id', checkLoggedIn, isVerified, async (req, res) => {
     try {
         await db.query({sql, nestTables: true}, async (err, desks) => {
             // console.log(desks)
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
             return res.render('showDesk', {desks})
         })
 
 
     } catch (e) {
-        if (e.errno === 19) {
-            res.status(400).json('Duplication error from database');
-        } else {
-            res.status(400).json('Something broke! ' + e);
-        }
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
     }
 
 })
-app.get('/mybookings', checkLoggedIn, isVerified, async (req, res) => {
+app.get('/mybookings', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
     res.locals.todayDate = todayDate
@@ -215,21 +218,36 @@ app.get('/mybookings', checkLoggedIn, isVerified, async (req, res) => {
 
     try {
         await db.query({sql, nestTables: true}, async (err, bookings) => {
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
             // console.log(bookings)
             return res.render('myAllBookings', {bookings})
         })
 
 
     } catch (e) {
-        if (e.errno === 19) {
-            res.status(400).json('Duplication error from database');
-        } else {
-            res.status(400).json('Something broke! ' + e);
-        }
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
     }
 
 })
-app.post('/checkin', checkLoggedIn, isVerified, async (req, res) => {
+app.get('/allbookings', checkLoggedIn, isVerified, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+    res.locals.todayDate = todayDate
+
+
+    try {
+        res.render('allBookings')
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
     res.locals.todayDate = todayDate
@@ -241,75 +259,49 @@ app.post('/checkin', checkLoggedIn, isVerified, async (req, res) => {
 
         await db.query({sql, nestTables: true}, async (err, data) => {
             req.flash('success','You have checked-in')
+            if(err){
+               return next(new expressError('Page not found', 404))
+            }
             return res.redirect('/mybookings')
+
         })
 
 
     } catch (e) {
-        if (e.errno === 19) {
-            res.status(400).json('Duplication error from database');
-        } else {
-            res.status(400).json('Something broke! ' + e);
-        }
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
     }
 
 })
 
-app.get('/blank', async (req, res) => {
+app.get('/blank', async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.render("blankPage")
 })
 
-app.get('/check/:id', async (req, res) => {
+app.get('/check/:id', catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
-    let deskResult = []
-    let deskBooked = []
-
-    function newDesk(desk_id, desk_status, desk_name, room_id) {
-        const result = {desk_id, desk_status, desk_name, room_id}
-        return result
-    }
-
-    const sql = `SELECT * from desk where desk_id = ${req.params.id}`
-    const sql1 = `SELECT desk_id from booking_details WHERE book_date = "${req.session.date || mydate}"`
-
-    try {
-        await db.query(sql1, async (err, data) => {
-            for (let item of data) {
-                deskBooked.push(item.desk_id)
-            }
-        })
-        await db.query(sql, async (err, data) => {
-                console.log(data)
-                for (let item of data) {
-
-                    if (deskBooked.includes(item.desk_id)) {
-
-                        deskResult.push(newDesk(item.desk_id, 'booked', item.desk_name, item.room_id))
-                    } else {
-
-                        deskResult.push(newDesk(item.desk_id, 'available', item.desk_name, item.room_id))
-                    }
-                }
-                res.render("deskDetails", {deskResult})
-            }
-        )
-
+    try{
+        req.flash('error','from check route')
+    res.redirect('/')
 
     } catch (e) {
-        if (e.errno === 19) {
-            res.status(400).json('Duplication error from database');
-        } else {
-            res.status(400).json('Something broke! ' + e);
-        }
+            req.flash('error', 'Something is wrong. Please try later');
+            res.redirect('/')
     }
 
-})
-app.all('*',(req,res)=>{
-    res.locals.currentUser = req.user;
-    res.render('error')
+}))
+app.all("*",  checkLoggedIn, isVerified,(req, res, next) => {
+    res.locals.currentUser = req.user
+    next(new expressError('Page not found', 404))
 })
 
+app.use((err, req, res, next) => {
+    const {statusCode = 500} = err;
+    const error = err
+    if (!err.message) err.message = "Something went wrong";
+    res.status(statusCode).render("error", {err});
+});
 
 app.listen(PORT, () => {
     console.log(`Server is up on port ${PORT}`)
