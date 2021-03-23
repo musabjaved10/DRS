@@ -51,6 +51,7 @@ app.use((req, res, next) => {
     res.locals.currentUser = req.user
     res.locals.returnTO = req.headers.referer
     res.locals.myDate = req.session.date || mydate
+    res.locals.todayDate = todayDate
     next();
 });
 // //Configure passport middleware
@@ -207,7 +208,7 @@ app.get('/room/:id', checkLoggedIn, isVerified, async (req, res, next) => {
 app.get('/mybookings', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
-    res.locals.todayDate = todayDate
+
     const sql = `SELECT * FROM desk               
         left join room on desk.room_id = room.room_id 
         left join floor on floor.floor_id = room.room_id
@@ -235,7 +236,7 @@ app.get('/mybookings', checkLoggedIn, isVerified, async (req, res, next) => {
 app.get('/allbookings', checkLoggedIn, isVerified, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
-    res.locals.todayDate = todayDate
+
 
 
     try {
@@ -250,7 +251,6 @@ app.get('/allbookings', checkLoggedIn, isVerified, async (req, res,next) => {
 app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
-    res.locals.todayDate = todayDate
 
 
     try {
