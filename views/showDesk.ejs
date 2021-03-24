@@ -7,119 +7,76 @@
     <%}%>
 
 
-<!-- Sidebar -->
-<div class="d-flex flex-row-reverse justify-content-between">
 
-    <div>
-    <ul class="d-flex navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+<div class="container-fluid">
+    <!-- Row container -->
+    <div class="row">
 
-        <!-- Divider -->
-        <hr class="sidebar-divider">
-        <li class="nav-item active">
-            <a class="nav-link text-center" href="">
-                <span><strong>Desks</strong></span></a>
-        </li>
-
-
-        <!-- Nav Item - Charts -->
-        <% for(let desk of desks){ %>
-            <li class="nav-item ">
-                <ul class="nav-link" href="/desk/">
-                    <i class="fas fa-circle"></i>
-                    <span><%= desk.desk.desk_name %></span>
-                </ul>
-            </li>
-        <% } %>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block">
-
-        <!-- Sidebar Toggler (Sidebar) -->
-        <div class="text-center d-none d-md-inline">
-            <a href="/newBooking" class="btn btn-primary btn-sm">
-                <i class="fas fa-long-arrow-alt-left"></i>
-                <span>All Floors</span>
-            </a>
-            <a href="<%=returnTO%>" class="btn btn-primary  btn-sm">
-                <i class="fas fa-long-arrow-alt-left"></i>
-                <span>Back to Floor</span>
-            </a>
-        </div>
-
-    </ul>
-    <!--        End of side bar-->
-    </div>
-<!--    Desk table-->
-    <div class="container-fluid">
-        <!-- Row container -->
-        <div class="row">
-
-            <%for(let desk of desks){%>
-                <%if(desk.booking_details.book_date == null){%>
-                <!-- Available card sinppet -->
-                <div class="col-xl-4 col-md-6 mb-4">
-                    <div class="card border-left-primary shadow h-100 py-0">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="h4 mb-0 font-weight-bold text-gray-800"><%=desk.desk.desk_name%></div>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <div class="row">
-                                    <div class="col-sm-6 d-flex align-items-center">
+        <%for(let desk of desks){%>
+        <%if(desk.booking_details.book_date == null){%>
+        <!-- Available card sinppet -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-0">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="h4 mb-0 font-weight-bold text-gray-800"><%=desk.desk.desk_name%></div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-sm-6 d-flex align-items-center">
                                 <span class="myLabel available">
                                     <b>Available</b>
                                 </span>
-                                    </div>
+                            </div>
 
-                                    <div class="col-sm-6 d-flex align-items-center justify-content-end">
-                                        <form action="/book" method="post" onsubmit="return confirm('Confirm this desk ?');">
-                                            <div class="d-none">
-                                                <input type="text" value="<%=desk.desk.desk_id%>" name="desk_id">
-                                                <input type="text" value="<%=desk.desk.room_id%>" name="room_id">
-                                                <input type="text" value="<%=desk.room.floor_id%>" name="floor_id">
-                                            </div>
-                                            <button type="submit" class="btn btn-primary btn-sm py-1">Book now</button>
-                                        </form>
-
+                            <div class="col-sm-6 d-flex align-items-center justify-content-end">
+                                <form action="/book" method="post" onsubmit="return confirm('Confirm this desk ?');">
+                                    <div class="d-none">
+                                        <input type="text" value="<%=desk.desk.desk_id%>" name="desk_id">
+                                        <input type="text" value="<%=desk.desk.room_id%>" name="room_id">
+                                        <input type="text" value="<%=desk.room.floor_id%>" name="floor_id">
                                     </div>
-                                </div>
+                                    <button type="submit" class="btn btn-primary btn-sm py-1">Book now</button>
+                                </form>
+
                             </div>
                         </div>
                     </div>
                 </div>
-                <%}else{%>
-                <!-- Booked card snippet -->
-                <div class="col-xl-4 col-md-6 mb-4">
-                    <div class="card border-left-primary shadow h-100 w-auto py-0">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="h4 mb-0 font-weight-bold text-gray-800"><%=desk.desk.desk_name%></div>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <div class="row">
-                                    <div class="col-sm-6 d-flex align-items-center">
+            </div>
+        </div>
+        <%}else{%>
+        <!-- Booked card snippet -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 w-auto py-0">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="h4 mb-0 font-weight-bold text-gray-800"><%=desk.desk.desk_name%></div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-sm-6 d-flex align-items-center">
                                 <span class="myLabel booked"  data-toggle="tooltip" data-placement="right" title="by <%=`${desk.users.name} ${desk.users.surname}`%>">
                                     <b>Booked</b>
                                 </span>
-                                    </div>
+                            </div>
 
-                                    <div class="col-sm-6 d-flex align-items-center justify-content-end">
-                                    </div>
-                                </div>
+                            <div class="col-sm-6 d-flex align-items-center justify-content-end">
                             </div>
                         </div>
                     </div>
                 </div>
-                <%}%>
-            <%}%>
-
+            </div>
         </div>
+        <%}%>
+        <%}%>
 
     </div>
+
 </div>
 
 

@@ -1,53 +1,21 @@
 <% layout("./layout/boilerplate") %>
 
 
-<!-- Sidebar -->
-<div class="d-flex flex-row-reverse justify-content-between">
-    <div>
-        <ul class="d-flex navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-            <li class="nav-item active">
-                <a class="nav-link text-center" href="">
-                    <span><strong>Floors</strong></span></a>
-            </li>
+<!--    Desk table-->
+<div class="container-fluid">
+    <!-- Row container -->
+    <div class="row">
+        <div class="col-12">
+            <img id="roommap" class=" mt-5 w-75 h-75"
+                 src="https://www.roomsketcher.com/wp-content/uploads/2015/11/RoomSketcher-Office-Layout-2417478.jpg"
+                 alt="roommap">
+        </div>
+        <%if(mydata.rooms.length <=0){%>
+            <h1>No room yet</h1>
+        <%}%>
 
-
-            <!-- Nav Item - Charts -->
-            <% for(let floor of mydata.floors){ %>
-                <li class="nav-item">
-                    <a class="nav-link" href="/floor/<%= floor.floor_id %>">
-                        <i class="fas fa-fw fa-chart-area"></i>
-                        <span><%= floor.floor_name %></span>
-                    </a>
-                </li>
-            <% } %>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-
-                <a href="/newBooking" class="btn btn-primary btn-circle btn-sm">
-                    <i class="fas fa-long-arrow-alt-left"></i>
-                </a>
-            </div>
-
-        </ul>
-    </div>
-    <!--    Desk table-->
-    <div class="container-fluid">
-        <!-- Row container -->
-        <div class="row">
-            <div class="col-12">
-                <img id="roommap" class=" mt-5 w-75 h-75"
-                     src="https://www.roomsketcher.com/wp-content/uploads/2015/11/RoomSketcher-Office-Layout-2417478.jpg"
-                     alt="roommap">
-            </div>
-
-            <% for(let room of mydata.rooms){ %>
+        <% for(let room of mydata.rooms){ %>
 
             <!-- Available card sinppet -->
             <div class="col-xl-4 col-md-6 mb-4">
@@ -76,18 +44,8 @@
                     </div>
                 </div>
             </div>
-            <% } %>
-
-        </div>
+        <% } %>
 
     </div>
-    <!-- Page content (insert things here) -->
 
-    <!-- End ofPage content (insert things above) -->
-
-    <!-- End of Main Content -->
 </div>
-<!-- End of Content Wrapper -->
-</div>
-<!-- End of Page Wrapper -->
-

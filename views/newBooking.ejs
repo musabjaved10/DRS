@@ -1,42 +1,6 @@
 <% layout("./layout/boilerplate") %>
-
-<!-- Sidebar -->
-<div class="d-flex flex-row-reverse justify-content-between">
-    <ul class="d-flex navbar-nav bg-gradient-primary sidebar sidebar-dark accordion " id="accordionSidebar" >
-
-        <!-- Divider -->
-        <hr class="sidebar-divider">
-        <li class="nav-item active">
-            <a class="nav-link text-center" href="">
-                <span><strong>Floors</strong></span></a>
-        </li>
-
-
-        <!-- Nav Item - Charts -->
-        <%for(let floor of floors){%>
-        <li class="nav-item ">
-            <a class="nav-link " href="/floor/<%=floor.floor_id%>">
-                <i class="fas fa-fw fa-chart-area"></i>
-                <span><%= floor.floor_name %></span>
-            </a>
-        </li>
-        <%}%>
-
-
-        <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block">
-
-        <!-- Sidebar Toggler (Sidebar) -->
-        <div class="text-center d-none d-md-inline">
-             <a href="/" class="btn btn-primary btn-circle btn-sm">
-                <i class="fas fa-long-arrow-alt-left"></i>
-            </a>
-        </div>
-
-
-    </ul>
-    <div >
-        <img id="floormap" class="h-auto w-auto" src="https://images.edrawmax.com/images/knowledge/office-layout-1-office-layout-example.jpg" alt="floormap">
-    </div>
+<div class="ml-0 ml-lg-5 ">
+    <h1 class="d-block" >Select your floor</h1>
+    <img id="floormap" class="ml-0 w-100 h-50"   src="https://foyr.com/learn/wp-content/uploads/2019/07/shutterstock_1010700475-scaled.jpg" alt="floormap">
 </div>
 

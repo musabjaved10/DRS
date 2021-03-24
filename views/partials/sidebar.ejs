@@ -14,79 +14,24 @@
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item active">
-        <a class="nav-link" href="/">
-            <i class="fas fa-home"></i>
-            <span>Home</span></a>
+        <a class="nav-link text-center" href="/">
+            <i class="far fa-building"></i>
+            <span>Floors</span></a>
     </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider">
-    <!--    ********* Super Admin Options *************-->
-    <%if(currentUser.role == 0){ %>
-    <!-- Heading -->
-    <div class="sidebar-heading">
-        Super Admin Tools
-    </div>
 
 
 
-    <!-- Nav Item - Charts -->
-    <li class="nav-item">
-        <a class="nav-link" href="/newAdmin">
-            <i class="far fa-hand-point-right"></i>
-            <span>Create a new admin</span>
-        </a>
-    </li>
-
-
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-    <%}%>
-    <!--    ********* Admin Options *************-->
-    <%if(currentUser.role == 0 || currentUser.role == 1){ %>
-
-    <!-- Heading -->
-    <div class="sidebar-heading">
-        Admin Tools
-    </div>
-
-
-    <!-- Nav Item - Charts -->
-    <li class="nav-item">
-        <a class="nav-link" href="/register">
-            <i class="far fa-hand-point-right"></i>
-            <span>Create a new user</span>
-        </a>
-        <a class="nav-link" href="/allbookings">
-            <i class="far fa-hand-point-right"></i>
-            <span>All bookings</span>
+    <%for(let floor of allFloors){%>
+    <li class="nav-item ">
+        <a class="nav-link text-center" href="/floor/<%=floor.floor_id%>">
+            <i class="fas fa-building"></i>
+            <span><%= floor.floor_name %></span>
         </a>
     </li>
     <%}%>
-
-    <!--    ********* User Options *************-->
-
-    <!-- Heading -->
-    <div class="sidebar-heading">
-        User Tools
-    </div>
-
-
-    <!-- Nav Item - Charts -->
-    <li class="nav-item">
-        <a class="nav-link" href="/newBooking">
-            <i class="far fa-hand-point-right"></i>
-            <span>Book a desk</span>
-        </a>
-        <a class="nav-link" href="/mybookings">
-            <i class="far fa-hand-point-right"></i>
-            <span>My desks</span>
-        </a>
-        <a class="nav-link" href="/changepassword">
-            <i class="far fa-hand-point-right"></i>
-            <span>Change my password</span>
-        </a>
-    </li>
 
 
     <!-- Divider -->

@@ -41,6 +41,10 @@ app.use(session({
 
 //Connect flash
 app.use(flash());
+let allFloors;
+db.query(`SELECT * FROM floor`,(err, Floors)=>{
+    allFloors= Floors
+})
 app.use((req, res, next) => {
     // console.log(req.session)
     // if(!["/login","/"].includes(req.originalUrl)){
@@ -52,6 +56,7 @@ app.use((req, res, next) => {
     res.locals.returnTO = req.headers.referer
     res.locals.myDate = req.session.date || mydate
     res.locals.todayDate = todayDate
+    res.locals.allFloors = allFloors
     next();
 });
 // //Configure passport middleware
@@ -273,6 +278,21 @@ app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
     }
 
 })
+
+app.get('/superadmin', checkLoggedIn, isVerified, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        res.render('superAdmin')
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+
 
 app.get('/blank', async (req, res, next) => {
     res.locals.currentUser = req.user;
