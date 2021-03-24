@@ -54,8 +54,8 @@ router.post("/register", auth.validateRegister, async (req, res) => {
     try {
         const user = await createNewUser(newUser);
         console.log(user)
-        req.flash('success', `Thanks for signing up ${name}`);
-        return res.redirect("/login");
+        req.flash('success', `User ${name} ${surname} has been created`);
+        return res.redirect("/");
     } catch (err) {
         req.flash("error", err);
         console.log('error from catch', err)
