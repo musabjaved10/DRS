@@ -13,6 +13,8 @@ const passport = require('passport')
 const expressError = require('./utils/expressError')
 const catchAsync = require("./utils/catchAsync");
 
+const {isSuperAdmin} = require("./middleware");
+
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -96,6 +98,7 @@ app.use(
 
 
 const userRoutes = require('./routes/user')
+
 app.use("/", userRoutes)
 
 app.get('/', checkLoggedIn, isVerified, (req, res) => {
@@ -279,7 +282,85 @@ app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
 
 })
 
-app.get('/superadmin', checkLoggedIn, isVerified, async (req, res,next) => {
+app.get('/superadmin', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        res.render('superAdmin')
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        res.render('superAdmin')
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        res.render('superAdmin')
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        res.render('superAdmin')
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+app.get('/managefloor/:id', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        res.render('superAdmin')
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+app.get('/manageroom/:id', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        res.render('superAdmin')
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+app.get('/managedesk/:id', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
