@@ -8,50 +8,52 @@
     <div class="row">
         <div class="col-12">
             <img id="roommap" class=" mt-5 w-75 h-75"
-                 src="https://www.roomsketcher.com/wp-content/uploads/2015/11/RoomSketcher-Office-Layout-2417478.jpg"
+                 src="<%=mydata[0].floor.floor_image%>"
                  alt="roommap">
         </div>
 
 
         <div class="col-12">
-            <%if(mydata.length <=0){%>
+            <%if(mydata[0].room.room_id ==null){%>
                 <h1>No room yet</h1>
             <%}else{%>
-                <h1><%=mydata[0].floor_name%></h1>
+                <h1><%=mydata[0].floor.floor_name%></h1>
              <%}%>
         </div>
 
+        <%if(mydata[0].room.room_id != null){%>
+            <% for(let data of mydata){ %>
 
-        <% for(let room of mydata){ %>
-
-            <!-- Available card sinppet -->
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="card border-left-primary shadow h-100 py-0">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="h4 mb-0 font-weight-bold text-gray-800"><%= room.room_name %></div>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <div class="row">
-                                <div class="col-sm-6 d-flex align-items-center">
-                                <span class="myLabel available">
-                                    <b><%=room.total_desks%> Desks</b>
-                                </span>
+                <!-- Available card sinppet -->
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-0">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h4 mb-0 font-weight-bold text-gray-800"><%= data.room.room_name %></div>
                                 </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="row">
+                                    <div class="col-sm-6 d-flex align-items-center">
+                                <span class="myLabel available">
+                                    <b><%=data.room.total_desks%> Desks</b>
+                                </span>
+                                    </div>
 
-                                <div class="col-sm-6 d-flex align-items-center justify-content-end">
-                                    <a href="/room/<%= room.room_id %>" type="submit"
-                                       class="btn btn-primary btn-sm py-1">Visit Room</a>
+                                    <div class="col-sm-6 d-flex align-items-center justify-content-end">
+                                        <a href="/room/<%= data.room.room_id %>" type="submit"
+                                           class="btn btn-primary btn-sm py-1">Visit Room</a>
 
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        <% } %>
+            <% } %>
+        <%}%>
+
 
     </div>
 

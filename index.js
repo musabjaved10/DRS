@@ -44,21 +44,25 @@ app.use(session({
 //Connect flash
 app.use(flash());
 let allFloors;
-db.query(`SELECT * FROM floor`,(err, Floors)=>{
-    allFloors= Floors
-})
+app.use(
+    async function(req,res,next){
+        await db.query(`SELECT * FROM floor`,(err, Floors)=>{
+            allFloors= Floors
+            res.locals.allFloors =  allFloors
+        })
+        next();
+    }
+
+)
+
 app.use((req, res, next) => {
-    // console.log(req.session)
-    // if(!["/login","/"].includes(req.originalUrl)){
-    //     req.session.returnTo = req.originalUrl;
-    // };
+
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     res.locals.currentUser = req.user
     res.locals.returnTO = req.headers.referer
     res.locals.myDate = req.session.date || mydate
     res.locals.todayDate = todayDate
-    res.locals.allFloors = allFloors
     next();
 });
 // //Configure passport middleware
@@ -163,10 +167,10 @@ app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
 
 
-    const sql = `SELECT * from room left join floor on room.floor_id = floor.floor_id where floor.floor_id = ${req.params.id}`
+    const sql = `SELECT * from room right join floor on room.floor_id = floor.floor_id where floor.floor_id = ${req.params.id}`
 
     try {
-        await db.query({sql, nestTables: false}, async (err, mydata) => {
+        await db.query({sql, nestTables: true}, async (err, mydata) => {
             if(err){
                 return next(new expressError('Page not found', 404))
             }
@@ -283,7 +287,6 @@ app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
 app.get('/superadmin', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
-
     try {
         res.render('superAdmin')
 
@@ -298,7 +301,61 @@ app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res
     res.locals.date = req.session.date
 
     try {
-        res.render('superAdmin')
+        const sql = `SELECT * FROM floor`
+        await db.query(sql,(err,floors)=>{
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
+            return res.render('floorManage',{floors})
+        })
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+app.post('/addfloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        const {floor_name,total_rooms, floor_image ='/img/defaultFloorImage.jpg'} =req.body
+        const sql = `INSERT INTO floor set ?`
+        const newFloor = {
+            floor_name,
+            floor_image,
+            total_rooms
+        }
+
+        await db.query(sql,newFloor,(err,floors)=>{
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
+            req.flash('success',`${floor_name} has been added.`)
+            return res.redirect('/managefloor')
+        })
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+app.post('/deletefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        const {floor_id,floor_name} =req.body
+        const sql = `DELETE FROM floor where floor_id = ${floor_id}`
+        await db.query(sql,(err,floors)=>{
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
+            req.flash('success',`${floor_name} has been deleted.`)
+            return res.redirect(req.headers.referer)
+        })
 
     } catch (e) {
         req.flash('error', 'Something is wrong. Please try again later.');
@@ -311,7 +368,14 @@ app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
     res.locals.date = req.session.date
 
     try {
-        res.render('superAdmin')
+        const sql = `SELECT * FROM room left join floor on room.floor_id = floor.floor_id`
+        await db.query({sql, nestTables:true},(err,rooms)=>{
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
+            console.log(rooms)
+            return res.render('roomManage',{rooms})
+        })
 
     } catch (e) {
         req.flash('error', 'Something is wrong. Please try again later.');
@@ -319,6 +383,56 @@ app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
     }
 
 })
+app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        const {room_name,floor_id, room_image ='/img/defaultRoomImage.jpg',floor_name} =req.body
+        const sql = `INSERT INTO room set ?`
+        const newRoom = {
+            room_name,
+            floor_id,
+            room_image
+
+        }
+
+        await db.query(sql,newRoom,(err,result)=>{
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
+            req.flash('success',`${room_name} has been added in ${floor_name}.`)
+            return res.redirect('/manageroom')
+        })
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+app.post('/deleteroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+
+    try {
+        const {floor_id,floor_name} =req.body
+        const sql = `DELETE FROM floor where floor_id = ${floor_id}`
+        await db.query(sql,(err,floors)=>{
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
+            req.flash('success',`${floor_name} has been deleted.`)
+            return res.redirect(req.headers.referer)
+        })
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+})
+
 app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
