@@ -35,18 +35,21 @@
                         <td>Time will show here</td>
                         <td><%if(booking.booking_details.checked_in === 0){%>
                                 <div>
-                                    <span class=" btn btn btn-danger btn-circle btn-sm"><i class="fas fa-times"></i></span>
+
                                     <%if(booking.booking_details.book_date === `${todayDate}` && booking.booking_details.checked_in === 0){%>
                                     <form class="d-inline" action="/checkin" method="post">
                                         <div class="d-none">
                                             <input  type="text" value="<%=booking.booking_details.booking_id%>" name="booking_id">
                                             <input type="text" value="<%=booking.booking_details.book_date%>" name="book_date">
                                         </div>
-                                        <button href="#" class="btn btn-success btn-sm">
+                                        <button href="#" class="btn btn-primary btn-sm">
                                             <span>Check-in</span>
                                         </button>
                                     </form>
+                                    <%}else{%>
+                                        <span class=" btn btn btn-danger btn-circle btn-sm"><i class="fas fa-times"></i></span>
                                     <%}%>
+
 
                                 </div>
                             <%}else{%>

@@ -10854,6 +10854,11 @@ a:focus {
   background-position: center;
   background-size: cover;
 }
+.bg-admin-image {
+  background: url("../img/admin-person.png");
+  background-position: center;
+  background-size: cover;
+}
 
 .bg-password-image {
   background: url("../img/forgotImage.jpg");

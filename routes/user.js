@@ -28,7 +28,40 @@ router.get("/register", checkLoggedIn, isAdmin, (req, res) => {
     res.render("authentication/signup")
 })
 router.get("/newAdmin", checkLoggedIn, isSuperAdmin,(req, res) => {
-    res.render("authentication/signup")
+    res.render("authentication/makeNewAdmin")
+})
+router.post("/newadmin", auth.validateRegister, async (req, res) => {
+
+    const {name, surname, email, password} = req.body;
+    //validate required fields
+    let errorsArr = [];
+    let validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+        let errors = Object.values(validationErrors.mapped());
+        errors.forEach((item) => {
+            errorsArr.push(item.msg);
+        });
+        req.flash("error", errorsArr);
+        return res.redirect("/register");
+    }
+    //create a new user
+    let newUser = {
+        name: name,
+        surname: surname,
+        email: email,
+        password: password,
+        role: 1
+    };
+    try {
+        const user = await createNewUser(newUser);
+        console.log(user)
+        req.flash('success', `Admin ${name} ${surname} has been created`);
+        return res.redirect("/");
+    } catch (err) {
+        req.flash("error", err);
+        console.log('error from catch', err)
+        return res.redirect("/register");
+    }
 })
 router.post("/register", auth.validateRegister, async (req, res) => {
 
@@ -49,7 +82,8 @@ router.post("/register", auth.validateRegister, async (req, res) => {
         name: name,
         surname: surname,
         email: email,
-        password: password
+        password: password,
+        role: 2
     };
     try {
         const user = await createNewUser(newUser);
@@ -125,6 +159,7 @@ let createNewUser = (data) => {
                 surname: data.surname,
                 email: data.email,
                 password: bcrypt.hashSync(data.password, salt),
+                role: data.role
             };
 
             //create a new account
