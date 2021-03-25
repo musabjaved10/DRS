@@ -163,19 +163,15 @@ app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
 
 
-    const sql = `SELECT * FROM room WHERE floor_id = ${req.params.id}`
-    const sql2 = `SELECT * FROM floor`
-    let mydata = {rooms:[], floors:[]}
+    const sql = `SELECT * from room left join floor on room.floor_id = floor.floor_id where floor.floor_id = ${req.params.id}`
+
     try {
-        await db.query(sql, req.params.id, async (err, rooms) => {
+        await db.query({sql, nestTables: false}, async (err, mydata) => {
             if(err){
                 return next(new expressError('Page not found', 404))
             }
-            mydata.rooms = rooms
-            await db.query(sql2, req.params.id, (err, floors) => {
-                mydata.floors = floors
-                res.render("showRoom",{mydata})
-            })
+            // console.log(mydata)
+            res.render("showRoom",{mydata})
         })
 
     } catch (e) {
@@ -187,10 +183,10 @@ app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res, next) => {
 
 app.get('/room/:id', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
-    console.log(req.session.date)
     res.locals.date = req.session.date
     const sql = `SELECT * FROM desk       
         left join room on room.room_id = desk.room_id
+        left join floor on room.floor_id = floor.floor_id
         left join booking_details on desk.desk_id = booking_details.desk_id 
         AND book_date = "${req.session.date}"  
         left join users on booking_details.user_id = users.user_id 
@@ -201,8 +197,10 @@ app.get('/room/:id', checkLoggedIn, isVerified, async (req, res, next) => {
         await db.query({sql, nestTables: true}, async (err, desks) => {
             // console.log(desks)
             if(err){
+                console.log(err)
                 return next(new expressError('Page not found', 404))
             }
+            // console.log(desks)
             return res.render('showDesk', {desks})
         })
 
