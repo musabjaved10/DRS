@@ -111,7 +111,7 @@ app.get('/', checkLoggedIn, isVerified, (req, res) => {
 app.post('/', checkLoggedIn, isVerified, (req, res, next) => {
     res.locals.currentUser = req.user;
     req.session.date = req.body.date
-    return res.redirect('/')
+    return res.redirect(req.headers.referer)
 
 })
 
@@ -150,7 +150,7 @@ app.post('/book', checkLoggedIn, isVerified, async (req, res, next) => {
                 return next(new expressError('Page not found', 404))
             }
             req.flash('success',`success, your desk has been booked for ${req.session.date}`)
-            return res.redirect("/")
+            return res.redirect("/mybookings")
         })
 
     } catch (e) {

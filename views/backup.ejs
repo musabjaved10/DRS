@@ -1,0 +1,46 @@
+<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+    <thead>
+    <tr>
+        <th>S.No</th>
+        <th>Date</th>
+        <th>Desk Name</th>
+        <th>Floor Name</th>
+        <th>Room</th>
+        <th>Time</th>
+        <th>Presence</th>
+        <th>Check-in</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <%for(let booking of bookings){%>
+    <tr>
+        <td>1</td>
+        <td><%=booking.booking_details.book_date%></td>
+        <td><%=booking.desk.desk_name%></td>
+        <td><%=booking.floor.floor_name%></td>
+        <td><%=booking.room.room_name%></td>
+
+        <td>Time will show here</td>
+        <td><%=booking.booking_details.checked_in === 0 ? 'absent': 'present'%></td>
+        <td><%if(booking.booking_details.book_date === `${todayDate}` && booking.booking_details.checked_in === 0){%>
+            <form action="/checkin" method="post">
+                <div class="d-none">
+                    <input  type="text" value="<%=booking.booking_details.booking_id%>" name="booking_id">
+                    <input type="text" value="<%=booking.booking_details.book_date%>" name="book_date">
+                </div>
+                <button href="#" class="btn btn-success btn-circle">
+                    <i class="fas fa-check"></i>
+                </button>
+            </form>
+
+            <%}%>
+        </td>
+    </tr>
+    <%}%>
+
+
+
+
+    </tbody>
+</table>
