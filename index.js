@@ -10,6 +10,10 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const passport = require('passport')
 
+const multer  = require('multer')
+
+
+
 const expressError = require('./utils/expressError')
 const catchAsync = require("./utils/catchAsync");
 
@@ -22,6 +26,28 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(methodOverride("_method"));
+
+const storageFloor = multer.diskStorage({
+    destination: function (req, file, cb) {
+
+        cb(null, './public/img/FloorImages/')
+    },
+    filename: function (req, file, cb) {
+
+        cb(null, file.originalname)
+    }
+})
+const floorUpload = multer({ storage: storageFloor })
+
+const storageRoom = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/img/roomImages/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+})
+const roomUpload = multer({ storage: storageRoom })
 
 const date = new Date();
 let mydate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${date.getDate() + 1}`
@@ -214,7 +240,7 @@ app.get('/room/:id', checkLoggedIn, isVerified, async (req, res, next) => {
                 console.log(err)
                 return next(new expressError('Page not found', 404))
             }
-            // console.log(desks)
+            console.log(desks)
             return res.render('showDesk', {desks})
         })
 
@@ -309,6 +335,7 @@ app.get('/superadmin', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
 app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
+    console.log(req.user)
 
     try {
         const sql = `SELECT * FROM floor`
@@ -325,18 +352,21 @@ app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res
     }
 
 })
-app.post('/addfloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+app.post('/addfloor', checkLoggedIn, isVerified, isSuperAdmin,floorUpload.single('floor_image'), async (req, res,next) => {
+    console.log(req.user)
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
     try {
         const {floor_name,total_rooms, floor_image ='/img/defaultFloorImage.jpg'} =req.body
         const sql = `INSERT INTO floor set ?`
+        const dir = req.file.destination.replace('./public','')
         const newFloor = {
             floor_name,
-            floor_image,
+            floor_image:dir+req.file.originalname,
             total_rooms
         }
+        // console.log(req.file)
 
         await db.query(sql,newFloor,(err,floors)=>{
             if(err){
@@ -395,17 +425,18 @@ app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
     }
 
 })
-app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin,roomUpload.single('room_image'), async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
     try {
         const {room_name,floor_id, room_image ='/img/defaultRoomImage.jpg'} =req.body
         const sql = `INSERT INTO room set ?`
+        const dir = req.file.destination.replace('./public','')
         const newRoom = {
             room_name,
             floor_id,
-            room_image
+            room_image:dir+req.file.originalname
         }
         console.log(req.body)
 
@@ -450,7 +481,19 @@ app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
     res.locals.date = req.session.date
 
     try {
-        res.render('superAdmin')
+        const sql = `SELECT * FROM desk left join room on desk.room_id = room.room_id left join floor on floor.floor_id = room.floor_id`
+        await db.query({sql, nestTables:true},async(err,desks)=>{
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
+            // console.log(rooms)
+            await db.query({sql:'SELECT * FROM room left join floor on room.room_id = floor.floor_id', nestTables:true},(err,rooms)=>{
+                if(err){
+                    return next(new expressError('Page not found', 404))
+                }
+                return res.render('deskManage',{desks,rooms})
+            })
+        })
 
     } catch (e) {
         req.flash('error', 'Something is wrong. Please try again later.');
@@ -458,12 +501,27 @@ app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
     }
 
 })
-app.get('/managefloor/:id', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin,roomUpload.single('room_image'), async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
     try {
-        res.render('superAdmin')
+        const {desk_name,room_id, } =req.body
+        const sql = `INSERT INTO desk set ?`
+
+        const newRoom = {
+            desk_name,
+            room_id,
+        }
+        console.log(req.body)
+
+        await db.query(sql,newRoom,(err,result)=>{
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
+            req.flash('success',`${desk_name} has been added.`)
+            return res.redirect('/managedesk')
+        })
 
     } catch (e) {
         req.flash('error', 'Something is wrong. Please try again later.');
@@ -471,32 +529,8 @@ app.get('/managefloor/:id', checkLoggedIn, isVerified, isSuperAdmin, async (req,
     }
 
 })
-app.get('/manageroom/:id', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
-    res.locals.currentUser = req.user;
-    res.locals.date = req.session.date
 
-    try {
-        res.render('superAdmin')
 
-    } catch (e) {
-        req.flash('error', 'Something is wrong. Please try again later.');
-        res.redirect("/")
-    }
-
-})
-app.get('/managedesk/:id', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
-    res.locals.currentUser = req.user;
-    res.locals.date = req.session.date
-
-    try {
-        res.render('superAdmin')
-
-    } catch (e) {
-        req.flash('error', 'Something is wrong. Please try again later.');
-        res.redirect("/")
-    }
-
-})
 
 
 app.get('/blank', async (req, res, next) => {

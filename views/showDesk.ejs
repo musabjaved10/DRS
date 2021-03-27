@@ -7,6 +7,11 @@
 <div class="container-fluid">
     <!-- Row container -->
     <div class="row">
+        <div class="col-12">
+            <img id="roommap" class=" mt-5 w-75 h-75"
+                 src="<%=desks[0].room.room_image%>"
+                 alt="roommap">
+        </div>
 
         <%for(let desk of desks){%>
         <%if(desk.booking_details.book_date == null){%>
@@ -81,7 +86,7 @@
 
 <%}else{%>
 <h1 class="ml-5">This room doesn't have any desk</h1>
-    <%}%>
+<%}%>
 
 
 

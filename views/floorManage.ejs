@@ -7,7 +7,7 @@
             <h1 class="text-center d-block">Add New Floor</h1>
         </div>
         <div class="col-md-6 offset-md-3 bg-gradient-info">
-            <form action="/addfloor" method="post" >
+            <form action="/addfloor" method="post" enctype="multipart/form-data" >
                 <div class="mb-3">
                     <label class="form-label text-white" for="title">Title</label>
                     <input class="form-control" type="text" id="title" name="floor_name" required>
@@ -15,7 +15,8 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="formFileMultiple" class="form-label text-white">Image path</label>
+                    <label for="formFileMultiple" class="form-label text-white">Floor image
+                    </label>
                     <input class="form-control" type="file" name="floor_image">
                 </div>
 

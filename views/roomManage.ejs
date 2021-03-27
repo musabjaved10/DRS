@@ -7,7 +7,7 @@
             <h1 class="text-center d-block">Add New Room</h1>
         </div>
         <div class="col-md-6 offset-md-3 bg-gradient-primary">
-            <form action="/addroom" method="post" >
+            <form action="/addroom" method="post" enctype="multipart/form-data" >
                 <div class="mb-3">
                     <label class="form-label text-white" for="title">Title</label>
                     <input class="form-control" type="text" id="title" name="room_name" required>
@@ -15,7 +15,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="formFileMultiple" class="form-label text-white">Image path</label>
+                    <label for="formFileMultiple" class="form-label text-white">Room image</label>
                     <input class="form-control" type="file" name="room_image">
                 </div>
 
@@ -24,7 +24,7 @@
                     <select class="custom-select" id="validationCustom04" name="floor_id" required>
                         <option selected disabled >Select floor...</option>
                         <%for(let floor of allFloors){%>
-                            <option  value='<%=floor.floor_id%>'><%=floor.floor_name%></option>
+                        <option  value='<%=floor.floor_id%>'><%=floor.floor_name%></option>
                         <%}%>
 
                     </select>
@@ -45,7 +45,6 @@
     <!-- Row container -->
     <div class="row">
         <%for(let room of rooms){%>
-
         <!-- Available card sinppet -->
         <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-0">
@@ -62,9 +61,7 @@
                                 <span class="myLabel available">
                                     <b><%=room.floor.floor_name%></b>
                                 </span>
-
                             </div>
-
                             <div class="col-sm-6 d-flex align-items-center justify-content-end">
                                 <form action="/deleteroom" method="post" onsubmit="return confirm('Warning:\nThis room and all its desks will be deleted. Confirm?');">
                                     <div class="d-none">
@@ -73,7 +70,6 @@
                                     </div>
                                     <button type="submit" class="btn btn-danger btn-circle btn-sm py-1"><i class="fas fa-trash"></i></button>
                                 </form>
-
                             </div>
                         </div>
                     </div>

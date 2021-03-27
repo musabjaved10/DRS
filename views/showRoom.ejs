@@ -1,6 +1,7 @@
 <% layout("./layout/boilerplate") %>
 
 <%if(mydata.length < 0){%>
+
     <h1>No room yet</h1>
 <%}else{%>
 <!--    Desk table-->
@@ -38,7 +39,7 @@
                                 <div class="row">
                                     <div class="col-sm-6 d-flex align-items-center">
                                 <span class="myLabel available">
-                                    <b><%=data.room.total_desks%> Desks</b>
+                                    <b><%=data.floor.floor_name%></b>
                                 </span>
                                     </div>
 
