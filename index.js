@@ -240,7 +240,7 @@ app.get('/room/:id', checkLoggedIn, isVerified, async (req, res, next) => {
                 console.log(err)
                 return next(new expressError('Page not found', 404))
             }
-            console.log(desks)
+            // console.log(desks)
             return res.render('showDesk', {desks})
         })
 
@@ -335,7 +335,6 @@ app.get('/superadmin', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
 app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
-    console.log(req.user)
 
     try {
         const sql = `SELECT * FROM floor`
@@ -353,7 +352,6 @@ app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res
 
 })
 app.post('/addfloor', checkLoggedIn, isVerified, isSuperAdmin,floorUpload.single('floor_image'), async (req, res,next) => {
-    console.log(req.user)
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
@@ -438,7 +436,7 @@ app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin,roomUpload.single('
             floor_id,
             room_image:dir+req.file.originalname
         }
-        console.log(req.body)
+        // console.log(req.body)
 
         await db.query(sql,newRoom,(err,result)=>{
             if(err){
@@ -487,10 +485,11 @@ app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
                 return next(new expressError('Page not found', 404))
             }
             // console.log(rooms)
-            await db.query({sql:'SELECT * FROM room left join floor on room.room_id = floor.floor_id', nestTables:true},(err,rooms)=>{
+            await db.query({sql:'SELECT * FROM room left join floor on room.floor_id = floor.floor_id', nestTables:true},(err,rooms)=>{
                 if(err){
                     return next(new expressError('Page not found', 404))
                 }
+                // console.log(rooms)
                 return res.render('deskManage',{desks,rooms})
             })
         })
@@ -501,7 +500,7 @@ app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
     }
 
 })
-app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin,roomUpload.single('room_image'), async (req, res,next) => {
+app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
@@ -513,10 +512,11 @@ app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin,roomUpload.single('
             desk_name,
             room_id,
         }
-        console.log(req.body)
+        // console.log(req.body)
 
         await db.query(sql,newRoom,(err,result)=>{
             if(err){
+                console.log(err)
                 return next(new expressError('Page not found', 404))
             }
             req.flash('success',`${desk_name} has been added.`)
