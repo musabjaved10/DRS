@@ -69,6 +69,14 @@ app.use((req, res, next) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(
+    function(req,res,next){
+        res.locals.currentFloor = 0
+        next();
+    }
+
+)
+
 const {checkLoggedIn, isVerified} = require('./middleware')
 //ip address functionality
 
@@ -165,6 +173,7 @@ app.post('/book', checkLoggedIn, isVerified, async (req, res, next) => {
 })
 app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
+    res.locals.currentFloor = req.params.id
 
 
     const sql = `SELECT * from room right join floor on room.floor_id = floor.floor_id where floor.floor_id = ${req.params.id}`
@@ -175,7 +184,7 @@ app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res, next) => {
                 return next(new expressError('Page not found', 404))
             }
             // console.log(mydata)
-            res.render("showRoom",{mydata})
+            res.render("showRoom",{mydata, CF: req.params.id})
         })
 
     } catch (e) {
