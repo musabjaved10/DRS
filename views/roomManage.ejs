@@ -16,27 +16,27 @@
 
                 <div class="mb-3">
                     <label for="formFileMultiple" class="form-label text-white">Image path</label>
-                    <input class="form-control" type="file" name="floor_image">
+                    <input class="form-control" type="file" name="room_image">
                 </div>
 
                 <div class="mb-3">
                     <label for="validationCustom04" class="text-white">Floor</label>
-                    <select class="custom-select" id="validationCustom04" name="floor_name" required>
-                        <option selected disabled value="">Select floor...</option>
+                    <select class="custom-select" id="validationCustom04" name="floor_id" required>
+                        <option selected disabled >Select floor...</option>
                         <%for(let floor of allFloors){%>
-                            <option  value='{"num_sequence":[0,1,2,3]}'><%=floor.floor_name%></option>
+                            <option  value='<%=floor.floor_id%>'><%=floor.floor_name%></option>
                         <%}%>
 
                     </select>
                     <div class="invalid-feedback">
-                        Please select a valid state.
+                        Please select a valid Floor.
                     </div>
                 </div>
 
 
 
                 <div class="mb-3">
-                    <button class="btn btn-success" >Make new floor</button>
+                    <button class="btn btn-success" >Add room</button>
                 </div>
             </form>
 
@@ -66,10 +66,10 @@
                             </div>
 
                             <div class="col-sm-6 d-flex align-items-center justify-content-end">
-                                <form action="/deletefloor" method="post" onsubmit="return confirm('Warning:\nThis floor,its rooms and desks will be deleted.Confirm?');">
+                                <form action="/deleteroom" method="post" onsubmit="return confirm('Warning:\nThis room and all its desks will be deleted. Confirm?');">
                                     <div class="d-none">
-                                        <input type="text" value="<%=room.room.room_id%>" name="floor_id">
-                                        <input type="text" value="<%=room.room.room_name%>" name="floor_name">
+                                        <input type="text" value="<%=room.room.room_id%>" name="room_id">
+                                        <input type="text" value="<%=room.room.room_name%>" name="room_name">
                                     </div>
                                     <button type="submit" class="btn btn-danger btn-circle btn-sm py-1"><i class="fas fa-trash"></i></button>
                                 </form>

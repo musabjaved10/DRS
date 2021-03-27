@@ -400,23 +400,22 @@ app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,ne
     res.locals.date = req.session.date
 
     try {
-        const {room_name,floor_id, room_image ='/img/defaultRoomImage.jpg',floor_name} =req.body
+        const {room_name,floor_id, room_image ='/img/defaultRoomImage.jpg'} =req.body
         const sql = `INSERT INTO room set ?`
         const newRoom = {
             room_name,
             floor_id,
             room_image
-
         }
         console.log(req.body)
 
-        // await db.query(sql,newRoom,(err,result)=>{
-        //     if(err){
-        //         return next(new expressError('Page not found', 404))
-        //     }
-        //     req.flash('success',`${room_name} has been added in ${floor_name}.`)
-        //     return res.redirect('/manageroom')
-        // })
+        await db.query(sql,newRoom,(err,result)=>{
+            if(err){
+                return next(new expressError('Page not found', 404))
+            }
+            req.flash('success',`${room_name} has been added.`)
+            return res.redirect('/manageroom')
+        })
 
     } catch (e) {
         req.flash('error', 'Something is wrong. Please try again later.');
@@ -429,13 +428,13 @@ app.post('/deleteroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res
     res.locals.date = req.session.date
 
     try {
-        const {floor_id,floor_name} =req.body
-        const sql = `DELETE FROM floor where floor_id = ${floor_id}`
+        const {room_id,room_name} =req.body
+        const sql = `DELETE FROM room where room_id = ${room_id}`
         await db.query(sql,(err,floors)=>{
             if(err){
                 return next(new expressError('Page not found', 404))
             }
-            req.flash('success',`${floor_name} has been deleted.`)
+            req.flash('success',`${room_name} has been deleted.`)
             return res.redirect(req.headers.referer)
         })
 
