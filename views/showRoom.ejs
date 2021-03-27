@@ -1,5 +1,8 @@
 <% layout("./layout/boilerplate") %>
 
+<%if(mydata.length < 0){%>
+    <h1>No room yet</h1>
+<%}else{%>
 <!--    Desk table-->
 <div class="container-fluid">
     <!-- Row container -->
@@ -15,8 +18,8 @@
             <%if(mydata[0].room.room_id ==null){%>
                 <h1>No room yet</h1>
             <%}else{%>
-                <h1><%=mydata[0].floor.floor_name%></h1>
-             <%}%>
+            <h1><%=mydata[0].floor.floor_name%></h1>
+            <%}%>
         </div>
 
         <%if(mydata[0].room.room_id != null){%>
@@ -56,3 +59,7 @@
     </div>
 
 </div>
+
+<%}%>
+
+

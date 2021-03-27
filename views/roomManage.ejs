@@ -7,16 +7,30 @@
             <h1 class="text-center d-block">Add New Room</h1>
         </div>
         <div class="col-md-6 offset-md-3 bg-gradient-primary">
-            <form action="/addfloor" method="post" >
+            <form action="/addroom" method="post" >
                 <div class="mb-3">
                     <label class="form-label text-white" for="title">Title</label>
-                    <input class="form-control" type="text" id="title" name="floor_name" required>
+                    <input class="form-control" type="text" id="title" name="room_name" required>
 
                 </div>
 
                 <div class="mb-3">
                     <label for="formFileMultiple" class="form-label text-white">Image path</label>
-                    <input class="form-control" type="text" name="floor_image">
+                    <input class="form-control" type="file" name="floor_image">
+                </div>
+
+                <div class="mb-3">
+                    <label for="validationCustom04" class="text-white">Floor</label>
+                    <select class="custom-select" id="validationCustom04" name="floor_name" required>
+                        <option selected disabled value="">Select floor...</option>
+                        <%for(let floor of allFloors){%>
+                            <option  value='{"num_sequence":[0,1,2,3]}'><%=floor.floor_name%></option>
+                        <%}%>
+
+                    </select>
+                    <div class="invalid-feedback">
+                        Please select a valid state.
+                    </div>
                 </div>
 
 

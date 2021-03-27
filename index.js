@@ -197,6 +197,7 @@ app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res, next) => {
 app.get('/room/:id', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
+    res.locals.currentFloor = res.locals.currentFloor
     const sql = `SELECT * FROM desk       
         left join room on room.room_id = desk.room_id
         left join floor on room.floor_id = floor.floor_id
@@ -375,6 +376,8 @@ app.post('/deletefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, re
 app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
+    // res.locals.allFloors =  allFloors
+    // console.log(allFloors)
 
     try {
         const sql = `SELECT * FROM room left join floor on room.floor_id = floor.floor_id`
@@ -382,7 +385,7 @@ app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
             if(err){
                 return next(new expressError('Page not found', 404))
             }
-            console.log(rooms)
+            // console.log(rooms)
             return res.render('roomManage',{rooms})
         })
 
@@ -405,14 +408,15 @@ app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,ne
             room_image
 
         }
+        console.log(req.body)
 
-        await db.query(sql,newRoom,(err,result)=>{
-            if(err){
-                return next(new expressError('Page not found', 404))
-            }
-            req.flash('success',`${room_name} has been added in ${floor_name}.`)
-            return res.redirect('/manageroom')
-        })
+        // await db.query(sql,newRoom,(err,result)=>{
+        //     if(err){
+        //         return next(new expressError('Page not found', 404))
+        //     }
+        //     req.flash('success',`${room_name} has been added in ${floor_name}.`)
+        //     return res.redirect('/manageroom')
+        // })
 
     } catch (e) {
         req.flash('error', 'Something is wrong. Please try again later.');
