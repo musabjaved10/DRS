@@ -14,17 +14,18 @@
                 <input class="form-control" id="myInput" type="text" placeholder="Search..">
                 <br>
                 <table class="table table-bordered table-striped">
-                    <thead class="thead-dark">
+                    <thead class="bg-primary text-white">
                     <tr>
                         <th>Date</th>
                         <th>Desk Name</th>
                         <th>Floor Name</th>
                         <th>Room</th>
-                        <th>Time</th>
                         <th>Presence</th>
 
                     </tr>
                     </thead>
+
+                    <%if(bookings.length>0){%>
                     <tbody id="myTable">
                     <%for(let booking of bookings){%>
                     <tr>
@@ -32,26 +33,25 @@
                         <td><%=booking.desk.desk_name%></td>
                         <td><%=booking.floor.floor_name%></td>
                         <td><%=booking.room.room_name%></td>
-                        <td>Time will show here</td>
                         <td><%if(booking.booking_details.checked_in === 0){%>
-                                <div>
+                            <div>
 
-                                    <%if(booking.booking_details.book_date === `${todayDate}` && booking.booking_details.checked_in === 0){%>
-                                    <form class="d-inline" action="/checkin" method="post">
-                                        <div class="d-none">
-                                            <input  type="text" value="<%=booking.booking_details.booking_id%>" name="booking_id">
-                                            <input type="text" value="<%=booking.booking_details.book_date%>" name="book_date">
-                                        </div>
-                                        <button href="#" class="btn btn-primary btn-sm">
-                                            <span>Check-in</span>
-                                        </button>
-                                    </form>
-                                    <%}else{%>
-                                        <span class=" btn btn btn-danger btn-circle btn-sm"><i class="fas fa-times"></i></span>
-                                    <%}%>
+                                <%if(booking.booking_details.book_date === `${todayDate}` && booking.booking_details.checked_in === 0){%>
+                                <form class="d-inline" action="/checkin" method="post">
+                                    <div class="d-none">
+                                        <input  type="text" value="<%=booking.booking_details.booking_id%>" name="booking_id">
+                                        <input type="text" value="<%=booking.booking_details.book_date%>" name="book_date">
+                                    </div>
+                                    <button href="#" class="btn btn-primary btn-sm">
+                                        <span>Check-in</span>
+                                    </button>
+                                </form>
+                                <%}else if(booking.booking_details.book_date < todayDate){%>
+                                    <span class=" btn btn btn-danger btn-circle btn-sm"><i class="fas fa-times"></i></span>
+                                <%}%>
 
 
-                                </div>
+                            </div>
                             <%}else{%>
                                 <span class="btn btn btn-success btn-circle btn-sm"><i class="fas fa-check"></i></span>
                             <%}%>
@@ -61,10 +61,9 @@
                     <%}%>
 
                     </tbody>
+                    <%}%>
                 </table>
             </div>
         </div>
     </div>
-    </div>
-
 </div>

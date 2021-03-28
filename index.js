@@ -123,11 +123,11 @@ const {checkLoggedIn, isVerified} = require('./middleware')
 
 
 //ip functionality?////
-var getIP = require('ipware')().get_ip;
+let getIP = require('ipware')().get_ip;
 app.use(
     function(req, res, next) {
-        var ipInfo = getIP(req);
-        console.log(ipInfo.clientIp);
+        let ipInfo = getIP(req);
+        // console.log(ipInfo.clientIp);
         // { clientIp: '127.0.0.1', clientIpRoutable: false }
         next();
     }
@@ -154,7 +154,7 @@ app.post('/', checkLoggedIn, isVerified, (req, res, next) => {
 })
 
 
-app.get('/newBooking', checkLoggedIn, isVerified, async (req, res, next) => {
+app.get('/newBooking', checkLoggedIn, isVerified, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     const sql = "SELECT * FROM floor"
     try {
@@ -170,7 +170,7 @@ app.get('/newBooking', checkLoggedIn, isVerified, async (req, res, next) => {
         res.redirect("/")
     }
 
-})
+}))
 app.post('/book', checkLoggedIn, isVerified, async (req, res, next) => {
 
     const sql = `INSERT into booking_details set ?`
@@ -197,7 +197,7 @@ app.post('/book', checkLoggedIn, isVerified, async (req, res, next) => {
     }
 
 })
-app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res, next) => {
+app.get('/floor/:id', checkLoggedIn, isVerified,catchAsync( async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.currentFloor = req.params.id
 
@@ -218,9 +218,9 @@ app.get('/floor/:id', checkLoggedIn, isVerified, async (req, res, next) => {
         res.redirect("/")
     }
 
-})
+}))
 
-app.get('/room/:id', checkLoggedIn, isVerified, async (req, res, next) => {
+app.get('/room/:id', checkLoggedIn, isVerified, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
     res.locals.currentFloor = res.locals.currentFloor
@@ -250,8 +250,8 @@ app.get('/room/:id', checkLoggedIn, isVerified, async (req, res, next) => {
         res.redirect("/")
     }
 
-})
-app.get('/mybookings', checkLoggedIn, isVerified, async (req, res, next) => {
+}))
+app.get('/mybookings', checkLoggedIn, isVerified, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
@@ -278,15 +278,25 @@ app.get('/mybookings', checkLoggedIn, isVerified, async (req, res, next) => {
         res.redirect("/")
     }
 
-})
-app.get('/allbookings', checkLoggedIn, isVerified, async (req, res,next) => {
+}))
+app.get('/allbookings', checkLoggedIn, isVerified,isSuperAdmin, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
-
-
-
     try {
-        res.render('allBookings')
+        const sql = `SELECT * FROM booking_details left JOIN desk on booking_details.desk_id = desk.desk_id
+                     left join room on room.room_id = desk.room_id
+                     left join floor on floor.floor_id = room.floor_id 
+                     left join users on booking_details.user_id = users.user_id ORDER BY booking_details.book_date DESC`
+
+        await db.query({sql,nestTables:true},(err,bookings)=>{
+            if(err){
+                console.log(err)
+                return next(new expressError('Page not found', 404))
+            }
+            return res.render('allBookings',{bookings})
+        })
+
+
 
     } catch (e) {
         req.flash('error', 'Something is wrong. Please try again later.');
@@ -294,6 +304,7 @@ app.get('/allbookings', checkLoggedIn, isVerified, async (req, res,next) => {
     }
 
 })
+
 app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
@@ -308,7 +319,7 @@ app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
             if(err){
                return next(new expressError('Page not found', 404))
             }
-            return res.redirect('/mybookings')
+            return res.redirect(req.headers.referer || '/mybookings')
 
         })
 
@@ -320,7 +331,7 @@ app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
 
 })
 
-app.get('/superadmin', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+app.get('/superadmin', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
     try {
@@ -331,8 +342,8 @@ app.get('/superadmin', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
         res.redirect("/")
     }
 
-})
-app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+}))
+app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
@@ -350,8 +361,8 @@ app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res
         res.redirect("/")
     }
 
-})
-app.post('/addfloor', checkLoggedIn, isVerified, isSuperAdmin,floorUpload.single('floor_image'), async (req, res,next) => {
+}))
+app.post('/addfloor', checkLoggedIn, isVerified, isSuperAdmin,floorUpload.single('floor_image'), catchAsync(async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
@@ -379,7 +390,7 @@ app.post('/addfloor', checkLoggedIn, isVerified, isSuperAdmin,floorUpload.single
         res.redirect("/")
     }
 
-})
+}))
 app.post('/deletefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
@@ -401,7 +412,7 @@ app.post('/deletefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, re
     }
 
 })
-app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
     // res.locals.allFloors =  allFloors
@@ -422,8 +433,8 @@ app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
         res.redirect("/")
     }
 
-})
-app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin,roomUpload.single('room_image'), async (req, res,next) => {
+}))
+app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin,roomUpload.single('room_image'), catchAsync(async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
@@ -451,8 +462,8 @@ app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin,roomUpload.single('
         res.redirect("/")
     }
 
-})
-app.post('/deleteroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+}))
+app.post('/deleteroom', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
@@ -472,9 +483,9 @@ app.post('/deleteroom', checkLoggedIn, isVerified, isSuperAdmin, async (req, res
         res.redirect("/")
     }
 
-})
+}))
 
-app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
@@ -499,8 +510,8 @@ app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,
         res.redirect("/")
     }
 
-})
-app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+}))
+app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
@@ -528,7 +539,7 @@ app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,ne
         res.redirect("/")
     }
 
-})
+}))
 
 
 
