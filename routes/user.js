@@ -6,6 +6,55 @@ const bcrypt = require('bcrypt')
 const db = require('../model/dbConnection')
 const passport = require('../model/strategies')
 const {checkLoggedIn, checkLoggedOut, isVerified ,isAdmin, isSuperAdmin} = require('../middleware')
+const nodemailer = require('nodemailer')
+
+function sendEmail(email,name,password ) {
+    const output = `    
+    <h3>Credentials for your account</h3>           
+    <p>Dear ${name}, Your account has been created. Please note the credentials</p>    
+    <ul>
+        <li>email: ${email}</li>
+        <li>pass: ${password}</li>
+    </ul>    
+    <p>You will be asked to change your password after first login</p>
+    <p>Regards, <strong>Admin</strong></p>
+  `;
+
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+        host: 'mail.deghjee.com',
+        port: 465,
+        secure: true, // true for 465, false for other ports
+        auth: {
+            user: 'info@deghjee.com', // generated ethereal user
+            pass: 'saifali18'  // generated ethereal password
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    });
+
+    // setup email data with unicode symbols
+    let mailOptions = {
+        from: '"noreply" <info@deghjee.com>', // sender address
+        to: `${email}`, // list of receivers
+        subject: 'Account has been created.', // Subject line
+        text: 'Desk management system', // plain text body
+        html: output // html body
+    };
+
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log(error);
+        }
+        console.log('Message sent: %s', info.messageId);
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+        res.render('contact', {msg: 'Email has been sent'});
+    });
+}
+
 
 
 router.get("/login",checkLoggedOut, (req, res) => {
@@ -55,7 +104,8 @@ router.post("/newadmin", auth.validateRegister, async (req, res) => {
     try {
         const user = await createNewUser(newUser);
         console.log(user)
-        req.flash('success', `Admin ${name} ${surname} has been created`);
+        req.flash('success', `Admin ${name} ${surname} has been created. Notification email also sent`);
+        sendEmail(email,name,password)
         return res.redirect("/");
     } catch (err) {
         req.flash("error", err);
@@ -88,7 +138,8 @@ router.post("/register", auth.validateRegister, async (req, res) => {
     try {
         const user = await createNewUser(newUser);
         console.log(user)
-        req.flash('success', `User ${name} ${surname} has been created`);
+        req.flash('success', `User ${name} ${surname} has been created. Notification email also sent`);
+        sendEmail(email,name,password)
         return res.redirect("/");
     } catch (err) {
         req.flash("error", err);
