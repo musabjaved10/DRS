@@ -1,0 +1,25 @@
+<% layout("./layout/boilerplate") %>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <h1 class="text-center">Add New Campground</h1>
+        <div class="col-md-6 offset-md-3">
+            <form action="/uploadusers" method="post"  enctype="multipart/form-data">
+
+                <div class="mb-3">
+                    <label for="formFileMultiple" class="form-label">Upload CSV record</label>
+                    <input class="form-control" type="file" name="record" required>
+                </div>
+
+                <div class="mb-3">
+                    <button class="btn btn-success" >Upload</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+
+
+</div>

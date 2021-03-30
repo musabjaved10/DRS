@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const {validationResult} = require("express-validator");
@@ -8,6 +7,7 @@ const db = require('../model/dbConnection')
 const passport = require('../model/strategies')
 const {checkLoggedIn, checkLoggedOut, isVerified ,isAdmin, isSuperAdmin} = require('../middleware')
 const nodemailer = require('nodemailer')
+
 
 function sendEmail(email,name,password ) {
     const output = `    
@@ -338,6 +338,7 @@ router.post("/changepassword",checkLoggedIn,async(req,res)=>{
 
 
 })
+
 
 let createNewUser = (data) => {
     return new Promise(async (resolve, reject) => {

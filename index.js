@@ -12,8 +12,12 @@ const flash = require('connect-flash')
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const passport = require('passport')
+const fs = require('fs')
+const csv = require('fast-csv')
 
 const multer  = require('multer')
+
+const bcrypt = require('bcrypt')
 
 
 
@@ -51,6 +55,16 @@ const storageRoom = multer.diskStorage({
     }
 })
 const roomUpload = multer({ storage: storageRoom })
+
+const storageUser = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/userCSV/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+})
+const userUpload = multer({ storage: storageUser })
 
 const date = new Date();
 let mydate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${date.getDate() + 1}`
@@ -536,6 +550,63 @@ app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (
             req.flash('success',`${desk_name} has been added.`)
             return res.redirect('/managedesk')
         })
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+}))
+
+app.get('/uploadusers', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+    try {
+        return res.render('authentication/uploadUser')
+
+
+    } catch (e) {
+        req.flash('error', 'Something is wrong. Please try again later.');
+        res.redirect("/")
+    }
+
+}))
+app.post('/uploadusers',  userUpload.single('record'),(async (req, res,next) => {
+    res.locals.currentUser = req.user;
+    res.locals.date = req.session.date
+    try {
+        const salt = bcrypt.genSaltSync(10)
+        const users = [];
+        await fs.createReadStream("./public/userCSV/" + req.file.originalname)
+            .pipe(csv.parse({ headers: true }))
+            .on('error', error => {
+                console.error(error);
+                throw error.message;
+            })
+            .on('data', row => {
+                users.push(row);
+            })
+            .on('end', async () => {
+                for(let user of users){
+                    let newUser = {
+                        email:user.email,
+                        name:user.name,
+                        password:bcrypt.hashSync(user.password,salt),
+                        surname:user.surname,
+                        phone:user.phone
+                    }
+                    await db.query('INSERT INTO users SET ?',newUser,(err,result)=>{
+                        if(err){
+                            req.flash('error', 'Something is wrong. Please try again later.');
+                            return res.redirect("/uploadusers")
+                        }
+                    })
+                }
+                req.flash('success','users record has ben uploaded')
+                return res.redirect('/uploadusers')
+                //database ka kaam
+            });
+
 
     } catch (e) {
         req.flash('error', 'Something is wrong. Please try again later.');
