@@ -1,4 +1,4 @@
-if(process.env.NODE_ENV !== 'production'){
+if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
 const express = require("express");
@@ -15,10 +15,9 @@ const passport = require('passport')
 const fs = require('fs')
 const csv = require('fast-csv')
 
-const multer  = require('multer')
+const multer = require('multer')
 
 const bcrypt = require('bcrypt')
-
 
 
 const expressError = require('./utils/expressError')
@@ -44,7 +43,7 @@ const storageFloor = multer.diskStorage({
         cb(null, file.originalname)
     }
 })
-const floorUpload = multer({ storage: storageFloor })
+const floorUpload = multer({storage: storageFloor})
 
 const storageRoom = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -54,7 +53,7 @@ const storageRoom = multer.diskStorage({
         cb(null, file.originalname)
     }
 })
-const roomUpload = multer({ storage: storageRoom })
+const roomUpload = multer({storage: storageRoom})
 
 const storageUser = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -64,7 +63,7 @@ const storageUser = multer.diskStorage({
         cb(null, file.originalname)
     }
 })
-const userUpload = multer({ storage: storageUser })
+const userUpload = multer({storage: storageUser})
 
 const date = new Date();
 let mydate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${date.getDate() + 1}`
@@ -88,14 +87,13 @@ app.use(session({
 app.use(flash());
 let allFloors;
 app.use(
-    async function(req,res,next){
-        await db.query(`SELECT * FROM floor`,(err, Floors)=>{
-            allFloors= Floors
-            res.locals.allFloors =  allFloors
+    async function (req, res, next) {
+        await db.query(`SELECT * FROM floor`, (err, Floors) => {
+            allFloors = Floors
+            res.locals.allFloors = allFloors
         })
         next();
     }
-
 )
 
 app.use((req, res, next) => {
@@ -113,11 +111,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(
-    function(req,res,next){
+    function (req, res, next) {
         res.locals.currentFloor = 0
         next();
     }
-
 )
 
 const {checkLoggedIn, isVerified} = require('./middleware')
@@ -142,7 +139,7 @@ const {checkLoggedIn, isVerified} = require('./middleware')
 //ip functionality?////
 let getIP = require('ipware')().get_ip;
 app.use(
-    function(req, res, next) {
+    function (req, res, next) {
         let ipInfo = getIP(req);
         // console.log(ipInfo.clientIp);
         // { clientIp: '127.0.0.1', clientIpRoutable: false }
@@ -176,7 +173,7 @@ app.get('/newBooking', checkLoggedIn, isVerified, catchAsync(async (req, res, ne
     const sql = "SELECT * FROM floor"
     try {
         await db.query(sql, (err, floors) => {
-            if(err){
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
             return res.render('newBooking', {floors})
@@ -201,10 +198,10 @@ app.post('/book', checkLoggedIn, isVerified, async (req, res, next) => {
         }
         console.log(req.body)
         await db.query(sql, booking, (err, data) => {
-            if(err){
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
-            req.flash('success',`success, your desk has been booked for ${req.session.date}`)
+            req.flash('success', `success, your desk has been booked for ${req.session.date}`)
             return res.redirect("/mybookings")
         })
 
@@ -214,7 +211,7 @@ app.post('/book', checkLoggedIn, isVerified, async (req, res, next) => {
     }
 
 })
-app.get('/floor/:id', checkLoggedIn, isVerified,catchAsync( async (req, res, next) => {
+app.get('/floor/:id', checkLoggedIn, isVerified, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.currentFloor = req.params.id
 
@@ -223,11 +220,11 @@ app.get('/floor/:id', checkLoggedIn, isVerified,catchAsync( async (req, res, nex
 
     try {
         await db.query({sql, nestTables: true}, async (err, mydata) => {
-            if(err){
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
             // console.log(mydata)
-            res.render("showRoom",{mydata, CF: req.params.id})
+            res.render("showRoom", {mydata, CF: req.params.id})
         })
 
     } catch (e) {
@@ -253,7 +250,7 @@ app.get('/room/:id', checkLoggedIn, isVerified, catchAsync(async (req, res, next
     try {
         await db.query({sql, nestTables: true}, async (err, desks) => {
             // console.log(desks)
-            if(err){
+            if (err) {
                 console.log(err)
                 return next(new expressError('Page not found', 404))
             }
@@ -282,7 +279,7 @@ app.get('/mybookings', checkLoggedIn, isVerified, catchAsync(async (req, res, ne
 
     try {
         await db.query({sql, nestTables: true}, async (err, bookings) => {
-            if(err){
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
             // console.log(bookings)
@@ -296,7 +293,7 @@ app.get('/mybookings', checkLoggedIn, isVerified, catchAsync(async (req, res, ne
     }
 
 }))
-app.get('/allbookings', checkLoggedIn, isVerified,isSuperAdmin, async (req, res,next) => {
+app.get('/allbookings', checkLoggedIn, isVerified, isSuperAdmin, async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
     try {
@@ -305,14 +302,13 @@ app.get('/allbookings', checkLoggedIn, isVerified,isSuperAdmin, async (req, res,
                      left join floor on floor.floor_id = room.floor_id 
                      left join users on booking_details.user_id = users.user_id ORDER BY booking_details.book_date DESC`
 
-        await db.query({sql,nestTables:true},(err,bookings)=>{
-            if(err){
+        await db.query({sql, nestTables: true}, (err, bookings) => {
+            if (err) {
                 console.log(err)
                 return next(new expressError('Page not found', 404))
             }
-            return res.render('allBookings',{bookings})
+            return res.render('allBookings', {bookings})
         })
-
 
 
     } catch (e) {
@@ -322,7 +318,7 @@ app.get('/allbookings', checkLoggedIn, isVerified,isSuperAdmin, async (req, res,
 
 })
 
-app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
+app.post('/checkin', checkLoggedIn, isVerified, async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
@@ -332,9 +328,9 @@ app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
         const sql = `UPDATE booking_details set checked_in = 1 WHERE booking_id = "${booking_id}" and book_date = "${book_date}" `
 
         await db.query({sql, nestTables: true}, async (err, data) => {
-            req.flash('success','You have checked-in')
-            if(err){
-               return next(new expressError('Page not found', 404))
+            req.flash('success', 'You have checked-in')
+            if (err) {
+                return next(new expressError('Page not found', 404))
             }
             return res.redirect(req.headers.referer || '/mybookings')
 
@@ -348,7 +344,7 @@ app.post('/checkin', checkLoggedIn, isVerified, async (req, res,next) => {
 
 })
 
-app.get('/superadmin', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
+app.get('/superadmin', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
     try {
@@ -360,17 +356,17 @@ app.get('/superadmin', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async
     }
 
 }))
-app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
+app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
     try {
         const sql = `SELECT * FROM floor`
-        await db.query(sql,(err,floors)=>{
-            if(err){
+        await db.query(sql, (err, floors) => {
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
-            return res.render('floorManage',{floors})
+            return res.render('floorManage', {floors})
         })
 
     } catch (e) {
@@ -379,26 +375,26 @@ app.get('/managefloor', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(asyn
     }
 
 }))
-app.post('/addfloor', checkLoggedIn, isVerified, isSuperAdmin,floorUpload.single('floor_image'), catchAsync(async (req, res,next) => {
+app.post('/addfloor', checkLoggedIn, isVerified, isSuperAdmin, floorUpload.single('floor_image'), catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
     try {
-        const {floor_name,total_rooms, floor_image ='/img/defaultFloorImage.jpg'} =req.body
+        const {floor_name, total_rooms, floor_image = '/img/defaultFloorImage.jpg'} = req.body
         const sql = `INSERT INTO floor set ?`
-        const dir = req.file.destination.replace('./public','')
+        const dir = req.file.destination.replace('./public', '')
         const newFloor = {
             floor_name,
-            floor_image:dir+req.file.originalname,
+            floor_image: dir + req.file.originalname,
             total_rooms
         }
         // console.log(req.file)
 
-        await db.query(sql,newFloor,(err,floors)=>{
-            if(err){
+        await db.query(sql, newFloor, (err, floors) => {
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
-            req.flash('success',`${floor_name} has been added.`)
+            req.flash('success', `${floor_name} has been added.`)
             return res.redirect('/managefloor')
         })
 
@@ -408,18 +404,18 @@ app.post('/addfloor', checkLoggedIn, isVerified, isSuperAdmin,floorUpload.single
     }
 
 }))
-app.post('/deletefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res,next) => {
+app.post('/deletefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
     try {
-        const {floor_id,floor_name} =req.body
+        const {floor_id, floor_name} = req.body
         const sql = `DELETE FROM floor where floor_id = ${floor_id}`
-        await db.query(sql,(err,floors)=>{
-            if(err){
+        await db.query(sql, (err, floors) => {
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
-            req.flash('success',`${floor_name} has been deleted.`)
+            req.flash('success', `${floor_name} has been deleted.`)
             return res.redirect(req.headers.referer)
         })
 
@@ -429,7 +425,7 @@ app.post('/deletefloor', checkLoggedIn, isVerified, isSuperAdmin, async (req, re
     }
 
 })
-app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
+app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
     // res.locals.allFloors =  allFloors
@@ -437,12 +433,12 @@ app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async
 
     try {
         const sql = `SELECT * FROM room left join floor on room.floor_id = floor.floor_id`
-        await db.query({sql, nestTables:true},(err,rooms)=>{
-            if(err){
+        await db.query({sql, nestTables: true}, (err, rooms) => {
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
             // console.log(rooms)
-            return res.render('roomManage',{rooms})
+            return res.render('roomManage', {rooms})
         })
 
     } catch (e) {
@@ -451,26 +447,26 @@ app.get('/manageroom', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async
     }
 
 }))
-app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin,roomUpload.single('room_image'), catchAsync(async (req, res,next) => {
+app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin, roomUpload.single('room_image'), catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
     try {
-        const {room_name,floor_id, room_image ='/img/defaultRoomImage.jpg'} =req.body
+        const {room_name, floor_id, room_image = '/img/defaultRoomImage.jpg'} = req.body
         const sql = `INSERT INTO room set ?`
-        const dir = req.file.destination.replace('./public','')
+        const dir = req.file.destination.replace('./public', '')
         const newRoom = {
             room_name,
             floor_id,
-            room_image:dir+req.file.originalname
+            room_image: dir + req.file.originalname
         }
         // console.log(req.body)
 
-        await db.query(sql,newRoom,(err,result)=>{
-            if(err){
+        await db.query(sql, newRoom, (err, result) => {
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
-            req.flash('success',`${room_name} has been added.`)
+            req.flash('success', `${room_name} has been added.`)
             return res.redirect('/manageroom')
         })
 
@@ -480,18 +476,18 @@ app.post('/addroom', checkLoggedIn, isVerified, isSuperAdmin,roomUpload.single('
     }
 
 }))
-app.post('/deleteroom', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
+app.post('/deleteroom', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
     try {
-        const {room_id,room_name} =req.body
+        const {room_id, room_name} = req.body
         const sql = `DELETE FROM room where room_id = ${room_id}`
-        await db.query(sql,(err,floors)=>{
-            if(err){
+        await db.query(sql, (err, floors) => {
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
-            req.flash('success',`${room_name} has been deleted.`)
+            req.flash('success', `${room_name} has been deleted.`)
             return res.redirect(req.headers.referer)
         })
 
@@ -502,23 +498,26 @@ app.post('/deleteroom', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(asyn
 
 }))
 
-app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
+app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
     try {
         const sql = `SELECT * FROM desk left join room on desk.room_id = room.room_id left join floor on floor.floor_id = room.floor_id`
-        await db.query({sql, nestTables:true},async(err,desks)=>{
-            if(err){
+        await db.query({sql, nestTables: true}, async (err, desks) => {
+            if (err) {
                 return next(new expressError('Page not found', 404))
             }
             // console.log(rooms)
-            await db.query({sql:'SELECT * FROM room left join floor on room.floor_id = floor.floor_id', nestTables:true},(err,rooms)=>{
-                if(err){
+            await db.query({
+                sql: 'SELECT * FROM room left join floor on room.floor_id = floor.floor_id',
+                nestTables: true
+            }, (err, rooms) => {
+                if (err) {
                     return next(new expressError('Page not found', 404))
                 }
                 // console.log(rooms)
-                return res.render('deskManage',{desks,rooms})
+                return res.render('deskManage', {desks, rooms})
             })
         })
 
@@ -528,12 +527,12 @@ app.get('/managedesk', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async
     }
 
 }))
-app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
+app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
 
     try {
-        const {desk_name,room_id, } =req.body
+        const {desk_name, room_id,} = req.body
         const sql = `INSERT INTO desk set ?`
 
         const newRoom = {
@@ -542,12 +541,12 @@ app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (
         }
         // console.log(req.body)
 
-        await db.query(sql,newRoom,(err,result)=>{
-            if(err){
+        await db.query(sql, newRoom, (err, result) => {
+            if (err) {
                 console.log(err)
                 return next(new expressError('Page not found', 404))
             }
-            req.flash('success',`${desk_name} has been added.`)
+            req.flash('success', `${desk_name} has been added.`)
             return res.redirect('/managedesk')
         })
 
@@ -558,7 +557,7 @@ app.post('/adddesk', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (
 
 }))
 
-app.get('/uploadusers', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res,next) => {
+app.get('/uploadusers', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
     try {
@@ -571,14 +570,14 @@ app.get('/uploadusers', checkLoggedIn, isVerified, isSuperAdmin, catchAsync(asyn
     }
 
 }))
-app.post('/uploadusers',  userUpload.single('record'),(async (req, res,next) => {
+app.post('/uploadusers', userUpload.single('record'), (async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.date = req.session.date
     try {
         const salt = bcrypt.genSaltSync(10)
         const users = [];
         await fs.createReadStream("./public/userCSV/" + req.file.originalname)
-            .pipe(csv.parse({ headers: true }))
+            .pipe(csv.parse({headers: true}))
             .on('error', error => {
                 console.error(error);
                 throw error.message;
@@ -587,22 +586,22 @@ app.post('/uploadusers',  userUpload.single('record'),(async (req, res,next) => 
                 users.push(row);
             })
             .on('end', async () => {
-                for(let user of users){
+                for (let user of users) {
                     let newUser = {
-                        email:user.email,
-                        name:user.name,
-                        password:bcrypt.hashSync(user.password,salt),
-                        surname:user.surname,
-                        phone:user.phone
+                        email: user.email,
+                        name: user.name,
+                        password: bcrypt.hashSync(user.password, salt),
+                        surname: user.surname,
+                        phone: user.phone
                     }
-                    await db.query('INSERT INTO users SET ?',newUser,(err,result)=>{
-                        if(err){
+                    await db.query('INSERT INTO users SET ?', newUser, (err, result) => {
+                        if (err) {
                             req.flash('error', 'Something is wrong. Please try again later.');
                             return res.redirect("/uploadusers")
                         }
                     })
                 }
-                req.flash('success','users record has ben uploaded')
+                req.flash('success', 'users record has ben uploaded')
                 return res.redirect('/uploadusers')
                 //database ka kaam
             });
@@ -616,8 +615,6 @@ app.post('/uploadusers',  userUpload.single('record'),(async (req, res,next) => 
 }))
 
 
-
-
 app.get('/blank', async (req, res, next) => {
     res.locals.currentUser = req.user;
     res.render("blankPage")
@@ -625,17 +622,17 @@ app.get('/blank', async (req, res, next) => {
 
 app.get('/check/:id', catchAsync(async (req, res, next) => {
     res.locals.currentUser = req.user;
-    try{
-        req.flash('error','from check route')
-    res.redirect('/')
+    try {
+        req.flash('error', 'from check route')
+        res.redirect('/')
 
     } catch (e) {
-            req.flash('error', 'Something is wrong. Please try later');
-            res.redirect('/')
+        req.flash('error', 'Something is wrong. Please try later');
+        res.redirect('/')
     }
 
 }))
-app.all("*",  checkLoggedIn, isVerified,(req, res, next) => {
+app.all("*", checkLoggedIn, isVerified, (req, res, next) => {
     res.locals.currentUser = req.user
     next(new expressError('Page not found', 404))
 })

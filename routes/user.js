@@ -5,11 +5,11 @@ const auth = require('../validation/authValidation')
 const bcrypt = require('bcrypt')
 const db = require('../model/dbConnection')
 const passport = require('../model/strategies')
-const {checkLoggedIn, checkLoggedOut, isVerified ,isAdmin, isSuperAdmin} = require('../middleware')
+const {checkLoggedIn, checkLoggedOut, isVerified, isAdmin, isSuperAdmin} = require('../middleware')
 const nodemailer = require('nodemailer')
 
 
-function sendEmail(email,name,password ) {
+function sendEmail(email, name, password) {
     const output = `    
     <h3>Credentials for your account</h3>           
     <p>Dear ${name}, Your account has been created. Please note the credentials</p>    
@@ -56,7 +56,7 @@ function sendEmail(email,name,password ) {
     });
 }
 
-function sendForgotEmail(email,hash ) {
+function sendForgotEmail(email, hash) {
     const output = `    
     <h3>Reset you password</h3>           
     <p>Dear user, a password reset request was made for your email</p>    
@@ -103,10 +103,10 @@ function sendForgotEmail(email,hash ) {
 }
 
 
-router.get("/login",checkLoggedOut, (req, res) => {
+router.get("/login", checkLoggedOut, (req, res) => {
     res.render("authentication/login")
 })
-router.post("/login",checkLoggedOut, passport.authenticate("local", {
+router.post("/login", checkLoggedOut, passport.authenticate("local", {
         successRedirect: '/',
         failureRedirect: '/login',
         successFlash: true,
@@ -122,7 +122,7 @@ router.get('/logout', (req, res) => {
 router.get("/register", checkLoggedIn, isAdmin, (req, res) => {
     res.render("authentication/signup")
 })
-router.get("/newAdmin", checkLoggedIn, isSuperAdmin,(req, res) => {
+router.get("/newAdmin", checkLoggedIn, isSuperAdmin, (req, res) => {
     res.render("authentication/makeNewAdmin")
 })
 router.post("/newadmin", auth.validateRegister, async (req, res) => {
@@ -151,7 +151,7 @@ router.post("/newadmin", auth.validateRegister, async (req, res) => {
         const user = await createNewUser(newUser);
         console.log(user)
         req.flash('success', `Admin ${name} ${surname} has been created. Notification email also sent`);
-        sendEmail(email,name,password)
+        sendEmail(email, name, password)
         return res.redirect("/");
     } catch (err) {
         req.flash("error", err);
@@ -185,7 +185,7 @@ router.post("/register", auth.validateRegister, async (req, res) => {
         const user = await createNewUser(newUser);
         console.log(user)
         req.flash('success', `User ${name} ${surname} has been created. Notification email also sent`);
-        sendEmail(email,name,password)
+        sendEmail(email, name, password)
         return res.redirect("/");
     } catch (err) {
         req.flash("error", err);
@@ -198,32 +198,32 @@ router.post("/register", auth.validateRegister, async (req, res) => {
 router.get("/forgot", (req, res) => {
     res.render("authentication/forgotpass")
 })
-router.post("/forgot", async(req, res) => {
+router.post("/forgot", async (req, res) => {
     try {
         let val = (Math.floor(1000 + Math.random() * 9000)).toString();
         const {email} = req.body
-        if(typeof(email)=='undefined' ){
+        if (typeof (email) == 'undefined') {
             return res.redirect('/forgot')
         }
         await findUserByEmail(email).then(async (user) => {
 
             if (!user) {
-                req.flash('error',`'Email ${email} doesn't exist.`)
+                req.flash('error', `'Email ${email} doesn't exist.`)
                 return res.redirect('/forgot')
             }
             if (user) {
                 // console.log('heyyy its a user', user)
                 const newItem = {
                     email,
-                    hash:val
+                    hash: val
                 }
-                await db.query('INSERT INTO forgot set ?',newItem,async (err,result)=>{
-                    if(err){
-                        req.flash('error','Something went wrong. Please try later')
+                await db.query('INSERT INTO forgot set ?', newItem, async (err, result) => {
+                    if (err) {
+                        req.flash('error', 'Something went wrong. Please try later')
                         return res.redirect("/forgot")
                     }
-                    await sendForgotEmail(email,val)
-                    req.flash('success','An email has been sent to you')
+                    await sendForgotEmail(email, val)
+                    req.flash('success', 'An email has been sent to you')
                     return res.redirect('/login')
                 })
 
@@ -231,102 +231,99 @@ router.post("/forgot", async(req, res) => {
         });
 
 
-    }catch (e) {
+    } catch (e) {
         console.log(e)
-        req.flash('error','Something went wrong. Please try later')
+        req.flash('error', 'Something went wrong. Please try later')
         return res.redirect("/login")
     }
 })
 
-router.get("/reset/:c/:email",async(req,res)=>{
-    try{
-        const{c,email} = req.params
-        await db.query(`SELECT * FROM forgot WHERE email = "${email}" and hash = "${c}"`,(err,result)=>{
-            if(err){
+router.get("/reset/:c/:email", async (req, res) => {
+    try {
+        const {c, email} = req.params
+        await db.query(`SELECT * FROM forgot WHERE email = "${email}" and hash = "${c}"`, (err, result) => {
+            if (err) {
                 console.log(err)
-                req.flash('error','Something went wrong. Please try later')
+                req.flash('error', 'Something went wrong. Please try later')
                 return res.redirect("/login")
-            }
-            else{
+            } else {
 
-                if(result.length===0){
-                    req.flash('error','Link expired')
+                if (result.length === 0) {
+                    req.flash('error', 'Link expired')
                     return res.redirect("/login")
-                }
-                else{
-                    return res.render('authentication/resetPass',{c,email})
+                } else {
+                    return res.render('authentication/resetPass', {c, email})
                 }
             }
 
         })
 
 
-    }catch (e) {
+    } catch (e) {
         console.log(e)
-        req.flash('error','Link expired')
+        req.flash('error', 'Link expired')
         return res.redirect("/login")
     }
 })
-router.post("/reset/:c/:email",async(req,res)=>{
-    try{
+router.post("/reset/:c/:email", async (req, res) => {
+    try {
         const {newPassword} = req.body;
-        const{c,email} = req.params
+        const {c, email} = req.params
         let salt = bcrypt.genSaltSync(10);
-        let hashedPassword = bcrypt.hashSync(newPassword,salt)
-        await db.query(`UPDATE users SET password = "${hashedPassword}" WHERE email = "${email}" `,async(err,result)=> {
+        let hashedPassword = bcrypt.hashSync(newPassword, salt)
+        await db.query(`UPDATE users SET password = "${hashedPassword}" WHERE email = "${email}" `, async (err, result) => {
             if (err) {
                 console.log(err)
                 req.flash("error", 'Something went wrong. Please try later')
                 return res.redirect('//login')
             }
-            await db.query(`DELETE FROM forgot WHERE email = "${email}" `,async(err,result)=> {
-                req.flash('success','Password has been changed')
+            await db.query(`DELETE FROM forgot WHERE email = "${email}" `, async (err, result) => {
+                req.flash('success', 'Password has been changed')
                 return res.redirect('/login')
             })
 
         })
 
 
-    }catch (e) {
-        req.flash('error','Link expired')
+    } catch (e) {
+        req.flash('error', 'Link expired')
         return res.redirect("/login")
     }
 })
 
 
-
-router.get("/changepassword",checkLoggedIn,(req,res)=>{
+router.get("/changepassword", checkLoggedIn, (req, res) => {
     res.locals.currentUser = req.user
     res.render("authentication/changepass",)
 })
-router.post("/changepassword",checkLoggedIn,async(req,res)=>{
+router.post("/changepassword", checkLoggedIn, async (req, res) => {
     res.locals.currentUser = req.user
     try {
         const {currentPassword, newPassword} = req.body;
-        let match = await comparePassword(currentPassword,req.user.password)
-        if(match === true){
+        let match = await comparePassword(currentPassword, req.user.password)
+        if (match === true) {
             let salt = bcrypt.genSaltSync(10);
-            let hashedPassword = bcrypt.hashSync(newPassword,salt)
-            await db.query(`UPDATE users SET password = "${hashedPassword}" WHERE user_id = ${req.user.user_id} `,async(err,result)=>{
-                if(err){
+            let hashedPassword = bcrypt.hashSync(newPassword, salt)
+            await db.query(`UPDATE users SET password = "${hashedPassword}" WHERE user_id = ${req.user.user_id} `, async (err, result) => {
+                if (err) {
                     console.log(err)
-                    req.flash("error",err)
+                    req.flash("error", err)
                     return res.redirect('/changepassword')
                 }
-                await db.query(`UPDATE users SET isVerified = 1 where user_id = ${req.user.user_id}`,(err,result)=>{
-                    if(err){
+                await db.query(`UPDATE users SET isVerified = 1 where user_id = ${req.user.user_id}`, (err, result) => {
+                    if (err) {
                         console.log(err)
-                        req.flash("error",'Oops! something went wrong. Please try again')
+                        req.flash("error", 'Oops! something went wrong. Please try again')
                         return res.redirect('/changepassword')
                     }
 
-                    req.flash('success','Password has been changed successfully')
+                    req.flash('success', 'Password has been changed successfully')
 
                     return res.redirect('/')
                 })
             })
-        }else{
-            req.flash('error','Incorrect current password')
+        } else {
+            req.flash('error', 'Incorrect current password')
             return res.redirect('/changepassword')
         }
 
@@ -390,7 +387,7 @@ let checkExistEmail = (email) => {
     });
 };
 
-let comparePassword = (password,hashedPassword) => {
+let comparePassword = (password, hashedPassword) => {
     return new Promise(async (resolve, reject) => {
         try {
             await bcrypt.compare(password, hashedPassword).then((isMatch) => {
